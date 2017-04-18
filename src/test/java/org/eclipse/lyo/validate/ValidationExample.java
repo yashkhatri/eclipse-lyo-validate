@@ -1,4 +1,4 @@
-package com.companyname;
+package org.eclipse.lyo.validate;
 
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;

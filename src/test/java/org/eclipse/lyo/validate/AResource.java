@@ -1,4 +1,4 @@
-package com.companyname;
+package org.eclipse.lyo.validate;
 
 import java.lang.reflect.InvocationTargetException;
 import java.math.BigInteger;
@@ -48,11 +48,13 @@ import es.weso.schema.Result;
 @OslcResourceShape(title = "AResource Resource Shape", describes = SampleAdaptorConstants.TYPE_ARESOURCE)
 public class AResource extends AbstractResource {
 	private BigInteger anIntegerProperty;
+	private BigInteger integerProperty2;
 	private BigInteger anotherIntegerProperty;
 
 	private String aStringProperty;
 	private HashSet<Date> aSetOfDates = new HashSet<Date>();
 	private Link aReferenceProperty = new Link();
+	private BigInteger integerProperty3;
 
 	public AResource() throws URISyntaxException {
 		super();
@@ -67,18 +69,45 @@ public class AResource extends AbstractResource {
 	@OslcOccurs(Occurs.ExactlyOne)
 	@OslcValueType(ValueType.Integer)
 	@OslcReadOnly(false)
-	@ShaclMinCount(1)
-	@ShaclMaxCount(1)
+	@ShaclMinCount(0)
+	@ShaclMaxCount(0)
 	@ShaclDataType(DataType.Integer)
-	@ShaclMaxExclusive(12)
-	@ShaclMinExclusive(5)
 	@ShaclMaxLength(2)
 	@ShaclMinLength(1)
-	@ShaclIn(valueType = Integer.class, value = { "5", "7", "9", "12" })
 	public BigInteger getAnIntegerProperty() {
 		return anIntegerProperty;
 	}
 
+	
+	@OslcName("integerProperty2")
+	@OslcPropertyDefinition(SampleAdaptorConstants.SAMPLEDOMAIN_NAMSPACE + "integerProperty2")
+	@OslcOccurs(Occurs.ExactlyOne)
+	@OslcValueType(ValueType.Integer)
+	@OslcReadOnly(false)
+	@ShaclMaxExclusive(15)
+	@ShaclMinExclusive(5)
+public BigInteger getIntegerProperty2() {
+		return integerProperty2;
+	}
+	public void setIntegerProperty2(BigInteger integerProperty2) {
+		this.integerProperty2 = integerProperty2;
+	}
+
+	
+	@OslcName("integerProperty3")
+	@OslcPropertyDefinition(SampleAdaptorConstants.SAMPLEDOMAIN_NAMSPACE + "integerProperty3")
+	@OslcOccurs(Occurs.ExactlyOne)
+	@OslcValueType(ValueType.Integer)
+	@OslcReadOnly(false)
+	@ShaclMaxInclusive(15)
+	@ShaclMinInclusive(5)
+public BigInteger getIntegerProperty3() {
+		return integerProperty3;
+	}
+	public void setIntegerProperty3(BigInteger integerProperty3) {
+		this.integerProperty3 = integerProperty3;
+	}
+	
 	@OslcName("anotherIntegerProperty")
 	@OslcPropertyDefinition(SampleAdaptorConstants.SAMPLEDOMAIN_NAMSPACE + "anotherIntegerProperty")
 	@OslcOccurs(Occurs.ExactlyOne)
@@ -87,8 +116,6 @@ public class AResource extends AbstractResource {
 	@ShaclMinCount(1)
 	@ShaclMaxCount(1)
 	@ShaclDataType(DataType.Integer)
-	@ShaclMaxInclusive(12)
-	@ShaclMinInclusive(5)
 	@ShaclMaxLength(2)
 	@ShaclMinLength(1)
 	@ShaclIn(valueType = Integer.class, value = { "5", "7", "9", "12" })
@@ -104,6 +131,8 @@ public class AResource extends AbstractResource {
 	@ShaclMinCount(1)
 	@ShaclMaxCount(1)
 	@ShaclPattern("^B")
+	@ShaclMinLength(7)
+	@ShaclMaxLength(10)
 	public String getAStringProperty() {
 		return aStringProperty;
 	}

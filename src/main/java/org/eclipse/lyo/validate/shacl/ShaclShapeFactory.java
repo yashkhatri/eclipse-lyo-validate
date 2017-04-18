@@ -6,12 +6,7 @@ import java.lang.reflect.Type;
 import java.math.BigInteger;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Locale;
-import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.lyo.oslc4j.core.annotation.OslcDescription;
@@ -23,62 +18,39 @@ import org.eclipse.lyo.oslc4j.core.annotation.OslcValueType;
 import org.eclipse.lyo.oslc4j.core.exception.OslcCoreApplicationException;
 import org.eclipse.lyo.oslc4j.core.exception.OslcCoreDuplicatePropertyDefinitionException;
 import org.eclipse.lyo.oslc4j.core.exception.OslcCoreInvalidPropertyDefinitionException;
-import org.eclipse.lyo.oslc4j.core.exception.OslcCoreInvalidPropertyTypeException;
-import org.eclipse.lyo.oslc4j.core.exception.OslcCoreInvalidValueTypeException;
 import org.eclipse.lyo.oslc4j.core.exception.OslcCoreMissingAnnotationException;
-import org.eclipse.lyo.oslc4j.core.exception.OslcCoreMissingSetMethodException;
 import org.eclipse.lyo.oslc4j.core.model.IReifiedResource;
 import org.eclipse.lyo.oslc4j.core.model.InheritedMethodAnnotationHelper;
+import org.eclipse.lyo.oslc4j.core.model.ResourceShapeFactory;
 import org.eclipse.lyo.oslc4j.core.model.ValueType;
-import org.eclipse.lyo.validate.shacl.ShaclShape;
 import org.eclipse.lyo.validate.shacl.annotations.RDFType;
 import org.eclipse.lyo.validate.shacl.annotations.RdfsIsDefinedBy;
 import org.eclipse.lyo.validate.shacl.annotations.RdfsLabel;
 import org.eclipse.lyo.validate.shacl.annotations.ShaclClassType;
 import org.eclipse.lyo.validate.shacl.annotations.ShaclDataType;
 import org.eclipse.lyo.validate.shacl.annotations.ShaclIn;
+import org.eclipse.lyo.validate.shacl.annotations.ShaclLanguageIn;
 import org.eclipse.lyo.validate.shacl.annotations.ShaclMaxCount;
 import org.eclipse.lyo.validate.shacl.annotations.ShaclMaxExclusive;
 import org.eclipse.lyo.validate.shacl.annotations.ShaclMaxInclusive;
+import org.eclipse.lyo.validate.shacl.annotations.ShaclMaxLength;
 import org.eclipse.lyo.validate.shacl.annotations.ShaclMinCount;
 import org.eclipse.lyo.validate.shacl.annotations.ShaclMinExclusive;
 import org.eclipse.lyo.validate.shacl.annotations.ShaclMinInclusive;
+import org.eclipse.lyo.validate.shacl.annotations.ShaclMinLength;
 import org.eclipse.lyo.validate.shacl.annotations.ShaclName;
+import org.eclipse.lyo.validate.shacl.annotations.ShaclPattern;
+import org.eclipse.lyo.validate.shacl.annotations.ShaclTargetNode;
+import org.eclipse.lyo.validate.shacl.annotations.ShaclUniqueLang;
 
 
-public final class ShaclShapeFactory {
+public final class ShaclShapeFactory extends ResourceShapeFactory{
 	private static final String METHOD_NAME_START_GET = "get";
 	private static final String METHOD_NAME_START_IS  = "is";
-	private static final String METHOD_NAME_START_SET = "set";
 
 	private static final int METHOD_NAME_START_GET_LENGTH = METHOD_NAME_START_GET.length();
 	private static final int METHOD_NAME_START_IS_LENGTH  = METHOD_NAME_START_IS.length();
 
-	private static final Map<Class<?>, ValueType> CLASS_TO_VALUE_TYPE = new HashMap<Class<?>, ValueType>();
-
-	static {
-		// Primitive types
-		CLASS_TO_VALUE_TYPE.put(Boolean.TYPE, ValueType.Boolean);
-		CLASS_TO_VALUE_TYPE.put(Byte.TYPE,	  ValueType.Integer);
-		CLASS_TO_VALUE_TYPE.put(Short.TYPE,	  ValueType.Integer);
-		CLASS_TO_VALUE_TYPE.put(Integer.TYPE, ValueType.Integer);
-		CLASS_TO_VALUE_TYPE.put(Long.TYPE,	  ValueType.Integer);
-		CLASS_TO_VALUE_TYPE.put(Float.TYPE,	  ValueType.Float);
-		CLASS_TO_VALUE_TYPE.put(Double.TYPE,  ValueType.Double);
-
-		// Object types
-		CLASS_TO_VALUE_TYPE.put(Boolean.class,	  ValueType.Boolean);
-		CLASS_TO_VALUE_TYPE.put(Byte.class,		  ValueType.Integer);
-		CLASS_TO_VALUE_TYPE.put(Short.class,	  ValueType.Integer);
-		CLASS_TO_VALUE_TYPE.put(Integer.class,	  ValueType.Integer);
-		CLASS_TO_VALUE_TYPE.put(Long.class,		  ValueType.Integer);
-		CLASS_TO_VALUE_TYPE.put(BigInteger.class, ValueType.Integer);
-		CLASS_TO_VALUE_TYPE.put(Float.class,	  ValueType.Float);
-		CLASS_TO_VALUE_TYPE.put(Double.class,	  ValueType.Double);
-		CLASS_TO_VALUE_TYPE.put(String.class,	  ValueType.String);
-		CLASS_TO_VALUE_TYPE.put(Date.class,		  ValueType.DateTime);
-		CLASS_TO_VALUE_TYPE.put(URI.class,		  ValueType.Resource);
-	}
 
 	private ShaclShapeFactory() {
 		super();
@@ -234,7 +206,7 @@ public final class ShaclShapeFactory {
 		}
 		
 		final ShaclMaxExclusive maxExclusiveAnnotation = InheritedMethodAnnotationHelper.getAnnotation(method, ShaclMaxExclusive.class);
-		if (minExclusiveAnnotation != null) {
+		if (maxExclusiveAnnotation != null) {
 			property.setMaxExclusive(new BigInteger(String.valueOf(maxExclusiveAnnotation.value())));
 		}
 		
@@ -245,7 +217,7 @@ public final class ShaclShapeFactory {
 		
 		final ShaclMaxInclusive maxInclusiveAnnotation = InheritedMethodAnnotationHelper.getAnnotation(method, ShaclMaxInclusive.class);
 		if (maxInclusiveAnnotation != null) {
-			property.setMinExclusive(new BigInteger(String.valueOf(maxInclusiveAnnotation.value())));
+			property.setMaxInclusive(new BigInteger(String.valueOf(maxInclusiveAnnotation.value())));
 		}
 		
 		final ShaclClassType shaclClass = InheritedMethodAnnotationHelper.getAnnotation(method, ShaclClassType.class);
@@ -256,6 +228,36 @@ public final class ShaclShapeFactory {
 		final ShaclName shaclName = InheritedMethodAnnotationHelper.getAnnotation(method, ShaclName.class);
 		if (shaclName != null) {
 			property.setName(shaclName.value());
+		}
+		
+		final ShaclPattern shaclPattern = InheritedMethodAnnotationHelper.getAnnotation(method, ShaclPattern.class);
+		if (shaclPattern != null) {
+			property.setPattern(shaclPattern.value());
+		}
+		
+		final ShaclUniqueLang shaclUniqueLang = InheritedMethodAnnotationHelper.getAnnotation(method, ShaclUniqueLang.class);
+		if (shaclUniqueLang != null) {
+			property.setUniqueLang(shaclUniqueLang.value());
+		}
+		
+		final ShaclTargetNode shaclTargetNode = InheritedMethodAnnotationHelper.getAnnotation(method, ShaclTargetNode.class);
+		if (shaclTargetNode != null) {
+			property.setTargetNode(new URI(shaclTargetNode.value()));
+		}
+		
+		final ShaclLanguageIn shaclLanguageIn = InheritedMethodAnnotationHelper.getAnnotation(method, ShaclLanguageIn.class);
+		if (shaclLanguageIn != null) {
+			property.setLanguageIn(shaclLanguageIn.value());
+		}
+		
+		final ShaclMinLength shaclMinLength = InheritedMethodAnnotationHelper.getAnnotation(method, ShaclMinLength.class);
+		if (shaclMinLength != null) {
+			property.setMinLength(new BigInteger(String.valueOf(shaclMinLength.value())));
+		}
+		
+		final ShaclMaxLength shaclMaxLength = InheritedMethodAnnotationHelper.getAnnotation(method, ShaclMaxLength.class);
+		if (shaclMaxLength != null) {
+			property.setMaxLength(new BigInteger(String.valueOf(shaclMaxLength.value())));
 		}
 		
 		final ShaclIn inAnnotation = InheritedMethodAnnotationHelper.getAnnotation(method, ShaclIn.class);
@@ -272,105 +274,7 @@ public final class ShaclShapeFactory {
 			}
 			property.setIn(object);
 		}
-		
-
 
 		return property;
 	}
-
-	private static String getDefaultPropertyName(final Method method) {
-		final String methodName	   = method.getName();
-		final int	 startingIndex = methodName.startsWith(METHOD_NAME_START_GET) ? METHOD_NAME_START_GET_LENGTH : METHOD_NAME_START_IS_LENGTH;
-		final int	 endingIndex   = startingIndex + 1;
-
-		// We want the name to start with a lower-case letter
-		final String lowercasedFirstCharacter = methodName.substring(startingIndex, endingIndex).toLowerCase(Locale.ENGLISH);
-		if (methodName.length() == endingIndex) {
-			return lowercasedFirstCharacter;
-		}
-
-		return lowercasedFirstCharacter + methodName.substring(endingIndex);
-	}
-
-	private static ValueType getDefaultValueType(final Class<?> resourceClass, final Method method, final Class<?> componentType) throws OslcCoreApplicationException {
-		final ValueType valueType = CLASS_TO_VALUE_TYPE.get(componentType);
-		if (valueType == null) {
-			throw new OslcCoreInvalidPropertyTypeException(resourceClass, method, componentType);
-		}
-		return valueType;
-	}
-
-	private static Class<?> getComponentType(final Class<?> resourceClass, final Method method, final Class<?> type) throws OslcCoreInvalidPropertyTypeException {
-		if (type.isArray()) {
-			return type.getComponentType();
-		} else if (Collection.class.isAssignableFrom(type)) {
-			final Type genericReturnType = method.getGenericReturnType();
-			if (genericReturnType instanceof ParameterizedType) {
-				final ParameterizedType parameterizedType = (ParameterizedType) genericReturnType;
-				final Type[] actualTypeArguments = parameterizedType.getActualTypeArguments();
-				if (actualTypeArguments.length == 1) {
-					final Type actualTypeArgument = actualTypeArguments[0];
-					if (actualTypeArgument instanceof Class) {
-						return (Class<?>) actualTypeArgument;
-					}
-				}
-			}
-			throw new OslcCoreInvalidPropertyTypeException(resourceClass, method, type);
-		} else {
-			return type;
-		}
-	}
-
-	private static void validateSetMethodExists(final Class<?> resourceClass, final Method getMethod) throws OslcCoreMissingSetMethodException {
-		final String getMethodName = getMethod.getName();
-
-		final String setMethodName;
-		if (getMethodName.startsWith(METHOD_NAME_START_GET)) {
-			setMethodName = METHOD_NAME_START_SET + getMethodName.substring(METHOD_NAME_START_GET_LENGTH);
-		} else {
-			setMethodName = METHOD_NAME_START_SET + getMethodName.substring(METHOD_NAME_START_IS_LENGTH);
-		}
-
-		try {
-			resourceClass.getMethod(setMethodName, getMethod.getReturnType());
-		} catch (final NoSuchMethodException exception) {
-			throw new OslcCoreMissingSetMethodException(resourceClass, getMethod, exception);
-		}
-	}
-
-	private static void validateUserSpecifiedValueType(final Class<?> resourceClass, final Method method, final ValueType userSpecifiedValueType, final Class<?> componentType) throws OslcCoreInvalidValueTypeException {
-		final ValueType calculatedValueType = CLASS_TO_VALUE_TYPE.get(componentType);
-
-		// If user-specified value type matches calculated value type
-		// or
-		// user-specified value type is local resource (we will validate the local resource later)
-		// or
-		// user-specified value type is xml literal and calculated value type is string
-		// or
-		// user-specified value type is decimal and calculated value type is numeric
-		if ((userSpecifiedValueType.equals(calculatedValueType))
-			||
-			(ValueType.LocalResource.equals(userSpecifiedValueType))
-			||
-			((ValueType.XMLLiteral.equals(userSpecifiedValueType))
-			 &&
-			 (ValueType.String.equals(calculatedValueType))
-			)
-			||
-			((ValueType.Decimal.equals(userSpecifiedValueType))
-			 &&
-			 ((ValueType.Double.equals(calculatedValueType))
-			  ||
-			  (ValueType.Float.equals(calculatedValueType))
-			  ||
-			  (ValueType.Integer.equals(calculatedValueType))
-			 )
-			)
-		   ) {
-			// We have a valid user-specified value type for our Java type
-			return;
-		}
-		return;
-	}
-
 }

@@ -26,6 +26,7 @@ import org.eclipse.lyo.oslc4j.core.model.Occurs;
 import org.eclipse.lyo.oslc4j.core.model.OslcConstants;
 import org.eclipse.lyo.oslc4j.core.model.ValueType;
 import org.eclipse.lyo.validate.constants.DataType;
+import org.eclipse.lyo.validate.shacl.annotations.ShaclDataType;
 
 
 @OslcNamespace(ShaclConstants.SHACL_CORE_NAMESPACE)
@@ -39,6 +40,9 @@ public final class Property extends AbstractResource {
 	private URI classType;
 	private DataType dataType;
 	private URI nodeKind;
+	
+	//Target Constraints
+	private URI targetNode;	
 	
 	//Cardinality Constraints
 	private BigInteger minCount;
@@ -126,6 +130,16 @@ public final class Property extends AbstractResource {
 		return description;
 	}
 
+	@OslcDescription("target node")
+	@OslcPropertyDefinition(ShaclConstants.SHACL_CORE_NAMESPACE + "targetNode")
+	@OslcReadOnly
+	@OslcName("targetNode")
+	@OslcValueType(ValueType.String)
+	@ShaclDataType(DataType.URI)
+	public URI getTargetNode() {
+		return targetNode;
+	}
+	
 	@OslcDescription("Specifies the name")
 	@OslcPropertyDefinition(ShaclConstants.SHACL_CORE_NAMESPACE + "name")
 	@OslcTitle("Name")
@@ -313,6 +327,10 @@ public final class Property extends AbstractResource {
 	
 	public void setDescription(String description) {
 		this.description = description;
+	}
+	
+	public void setTargetNode(URI targetNode) {
+		this.targetNode = targetNode;
 	}
 
 	@Override
