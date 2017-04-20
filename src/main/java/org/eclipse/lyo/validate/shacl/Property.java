@@ -68,6 +68,8 @@ public final class Property extends AbstractResource {
 	private String name;
 	private String description;
 	
+	private boolean isClosed;
+	
 	public Property() {
 		super();
 	}
@@ -210,6 +212,15 @@ public final class Property extends AbstractResource {
 		return minLength;
 	}
 
+	@OslcDescription("If set to true, the model is not allowed to have any other property apart from those in shapes graph.")
+	@OslcPropertyDefinition(ShaclConstants.SHACL_CORE_NAMESPACE + "closed")
+	@OslcValueType(ValueType.Boolean)
+	@OslcTitle("Closed")
+	public boolean getIsClosed () {
+		return isClosed;
+	}
+
+
 	@OslcDescription("Specifies the maximum string length of each value node that satisfies the condition.")
 	@OslcPropertyDefinition(ShaclConstants.SHACL_CORE_NAMESPACE + "maxLength")
 	@OslcValueType(ValueType.Integer)
@@ -263,6 +274,10 @@ public final class Property extends AbstractResource {
 	@OslcRdfCollectionType
 	public Object[] getIn() {
 		return in;
+	}
+
+	public void setClosed(boolean isClosed) {
+		this.isClosed = isClosed;
 	}
 
 	public void setIn(Object[] in) {

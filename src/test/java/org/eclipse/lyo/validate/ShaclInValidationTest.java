@@ -35,6 +35,7 @@ public class ShaclInValidationTest {
 			aResource =  new AResource(new URI("http://www.sampledomain.org/sam#AResource"));
 			aResource.setAStringProperty("Between");
 			aResource.addASetOfDates(new Date());
+			//Invalid value. Allowed values are 5,7,9 or 12.
 			aResource.setAnotherIntegerProperty(new BigInteger("6"));
 		
 		Model dataModel =  JenaModelHelper.createJenaModel(new Object[] {aResource});

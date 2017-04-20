@@ -27,6 +27,7 @@ import org.eclipse.lyo.validate.shacl.annotations.RDFType;
 import org.eclipse.lyo.validate.shacl.annotations.RdfsIsDefinedBy;
 import org.eclipse.lyo.validate.shacl.annotations.RdfsLabel;
 import org.eclipse.lyo.validate.shacl.annotations.ShaclClassType;
+import org.eclipse.lyo.validate.shacl.annotations.ShaclClosed;
 import org.eclipse.lyo.validate.shacl.annotations.ShaclDataType;
 import org.eclipse.lyo.validate.shacl.annotations.ShaclIn;
 import org.eclipse.lyo.validate.shacl.annotations.ShaclLanguageIn;
@@ -238,6 +239,11 @@ public final class ShaclShapeFactory extends ResourceShapeFactory{
 		final ShaclUniqueLang shaclUniqueLang = InheritedMethodAnnotationHelper.getAnnotation(method, ShaclUniqueLang.class);
 		if (shaclUniqueLang != null) {
 			property.setUniqueLang(shaclUniqueLang.value());
+		}
+		
+		final ShaclClosed shaclClosed = InheritedMethodAnnotationHelper.getAnnotation(method, ShaclClosed.class);
+		if (shaclClosed != null) {
+			property.setClosed(shaclClosed.value());
 		}
 		
 		final ShaclTargetNode shaclTargetNode = InheritedMethodAnnotationHelper.getAnnotation(method, ShaclTargetNode.class);
