@@ -218,6 +218,7 @@ public final class Property extends AbstractResource {
 	@OslcTitle("Closed")
 	public boolean isClosed() {
 		return isClosed;
+		
 	}
 
 
