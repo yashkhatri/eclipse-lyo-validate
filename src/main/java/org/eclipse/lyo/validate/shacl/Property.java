@@ -216,7 +216,7 @@ public final class Property extends AbstractResource {
 	@OslcPropertyDefinition(ShaclConstants.SHACL_CORE_NAMESPACE + "closed")
 	@OslcValueType(ValueType.Boolean)
 	@OslcTitle("Closed")
-	public boolean getIsClosed () {
+	public boolean isClosed() {
 		return isClosed;
 	}
 
