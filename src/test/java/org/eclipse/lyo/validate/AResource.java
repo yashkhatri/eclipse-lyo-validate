@@ -40,12 +40,14 @@ import org.eclipse.lyo.validate.shacl.annotations.ShaclMinExclusive;
 import org.eclipse.lyo.validate.shacl.annotations.ShaclMinInclusive;
 import org.eclipse.lyo.validate.shacl.annotations.ShaclMinLength;
 import org.eclipse.lyo.validate.shacl.annotations.ShaclPattern;
+import org.eclipse.lyo.validate.shacl.annotations.ShaclTargetClass;
 
 import es.weso.schema.Result;
 
 @OslcNamespace(SampleAdaptorConstants.SAMPLEDOMAIN_NAMSPACE)
 @OslcName(SampleAdaptorConstants.ARESOURCE)
 @OslcResourceShape(title = "AResource Resource Shape", describes = SampleAdaptorConstants.TYPE_ARESOURCE)
+@ShaclTargetClass(SampleAdaptorConstants.SAMPLEDOMAIN_NAMSPACE + SampleAdaptorConstants.ARESOURCE)
 public class AResource extends AbstractResource {
 	private BigInteger anIntegerProperty;
 	private BigInteger integerProperty2;

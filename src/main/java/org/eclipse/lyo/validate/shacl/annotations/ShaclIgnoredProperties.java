@@ -8,9 +8,9 @@ import java.lang.annotation.Target;
 
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.METHOD)
-public @interface ShaclPattern {
-	
-	String value();
+@Target(ElementType.TYPE)
+public @interface ShaclIgnoredProperties {
+
+	String[] values();
 
 }

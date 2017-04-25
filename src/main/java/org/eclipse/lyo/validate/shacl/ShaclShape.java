@@ -7,6 +7,7 @@
 package org.eclipse.lyo.validate.shacl;
 
 import java.net.URI;
+import java.util.List;
 import java.util.TreeMap;
 
 import org.eclipse.lyo.oslc4j.core.annotation.OslcDescription;
@@ -14,6 +15,7 @@ import org.eclipse.lyo.oslc4j.core.annotation.OslcName;
 import org.eclipse.lyo.oslc4j.core.annotation.OslcNamespace;
 import org.eclipse.lyo.oslc4j.core.annotation.OslcPropertyDefinition;
 import org.eclipse.lyo.oslc4j.core.annotation.OslcRange;
+import org.eclipse.lyo.oslc4j.core.annotation.OslcRdfCollectionType;
 import org.eclipse.lyo.oslc4j.core.annotation.OslcReadOnly;
 import org.eclipse.lyo.oslc4j.core.annotation.OslcResourceShape;
 import org.eclipse.lyo.oslc4j.core.annotation.OslcTitle;
@@ -26,12 +28,21 @@ import org.eclipse.lyo.oslc4j.core.model.ValueType;
 @OslcName("Shape")
 @OslcResourceShape(title = "Shacl Resource Shape", describes = ShaclConstants.TYPE_SHACL_SHAPE)
 public final class ShaclShape extends AbstractResource {
-	private URI targetClass;  //can it be more than 1?
+	//Targets
+	private URI targetClass;  
 	private URI targetNode;
+	private URI targetSubjectsOf;
+	private URI targetObjectsOf;
+
+	//Core Constraints
 	private final TreeMap<URI, Property> properties = new TreeMap<URI, Property>();
+	
 	private URI isDefinedBy;
 	private String label;
 	private URI type;
+	private boolean isClosed;
+	private List<URI> ignoredProperties;
+
 
 	public ShaclShape() {
 		super();
@@ -41,8 +52,8 @@ public final class ShaclShape extends AbstractResource {
 		super(about);
 	}
 	
-	public void addtargetClass(final URI targetClass) {
-		this.targetClass = targetClass;
+	public void addIgnoredProperties(final URI ignoredPropertyPredicate) {
+		this.ignoredProperties.add(ignoredPropertyPredicate);
 	}
 	
 	
@@ -54,10 +65,6 @@ public final class ShaclShape extends AbstractResource {
 		return type;
 	}
 
-	public void setType(URI type) {
-		this.type = type;
-	}
-
 	@OslcDescription("Type or types of resource described by this shape")
 	@OslcPropertyDefinition(ShaclConstants.SHACL_CORE_NAMESPACE + "targetClass")
 	@OslcReadOnly
@@ -66,13 +73,29 @@ public final class ShaclShape extends AbstractResource {
 		return targetClass;
 	}
 	
-	public void setTargetClass(final URI targetClass) {
-		if (targetClass != null) {
-			this.targetClass = targetClass;
-		}
+	@OslcDescription("Type or types of resource described by this shape")
+	@OslcPropertyDefinition(ShaclConstants.SHACL_CORE_NAMESPACE + "targetSubjectsOf")
+	@OslcReadOnly
+	@OslcTitle("targetSubjectsOf")
+	public URI getTargetSubjectsOf() {
+		return targetSubjectsOf;
 	}
+	
+	@OslcDescription("Type or types of resource described by this shape")
+	@OslcPropertyDefinition(ShaclConstants.SHACL_CORE_NAMESPACE + "targetObjectsOf")
+	@OslcReadOnly
+	@OslcTitle("targetObjectsOf")
+	public URI getTargetObjectsOf() {
+		return targetObjectsOf;
+	}
+	
+	
 	public void addProperty(final Property property) {
 		this.properties.put(property.getPredicate(), property);
+	}
+	
+	public void removeProperty(final URI predicate) {
+		this.properties.remove(predicate);
 	}
 	
 	public Property getShaclProperty(URI definition) {
@@ -110,6 +133,53 @@ public final class ShaclShape extends AbstractResource {
 	@OslcTitle("targetNode")
 	public URI getTargetNode() {
 		return targetNode;
+	}
+	
+	@OslcDescription("If set to true, the model is not allowed to have any other property apart from those in shapes graph.")
+	@OslcPropertyDefinition(ShaclConstants.SHACL_CORE_NAMESPACE + "closed")
+	@OslcValueType(ValueType.Boolean)
+	@OslcTitle("Closed")
+	public boolean isClosed() {
+		return isClosed;
+		
+	}
+	
+	@OslcDescription("Optional SHACL list of properties that are also permitted in addition to those explicitly enumerated via sh:property..")
+	@OslcPropertyDefinition(ShaclConstants.SHACL_CORE_NAMESPACE + "ignoredProperties")
+	@OslcTitle("IgnoredProperties")
+	@OslcRdfCollectionType
+	public List<URI> getIgnoredProperties() {
+		return ignoredProperties;
+	}
+	
+	public void setType(URI type) {
+		this.type = type;
+	}
+	
+	public void setIgnoredProperties(List<URI> ignoredProperties) {
+		this.ignoredProperties = ignoredProperties;
+	}
+
+	public void setTargetClass(final URI targetClass) {
+		if (targetClass != null) {
+			this.targetClass = targetClass;
+		}
+	}
+	
+	public void setTargetSubjectsOf(final URI targetSubjectsOf) {
+		if (targetSubjectsOf != null) {
+			this.targetSubjectsOf = targetSubjectsOf;
+		}
+	}
+	
+	public void setTargetObjectsOf(final URI targetObjectsOf) {
+		if (targetObjectsOf != null) {
+			this.targetObjectsOf = targetObjectsOf;
+		}
+	}
+	
+	public void setClosed(boolean isClosed) {
+		this.isClosed = isClosed;
 	}
 	
 	public void setTargetNode(final URI targetNode) {

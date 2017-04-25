@@ -9,8 +9,8 @@ import java.lang.annotation.Target;
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
-public @interface ShaclPattern {
-	
-	String value();
+public @interface ShaclOrder {
+
+	int value();
 
 }

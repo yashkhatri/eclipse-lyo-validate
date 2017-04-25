@@ -5,6 +5,7 @@
 
 package org.eclipse.lyo.validate.shacl;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -41,9 +42,6 @@ public final class Property extends AbstractResource {
 	private DataType dataType;
 	private URI nodeKind;
 	
-	//Target Constraints
-	private URI targetNode;	
-	
 	//Cardinality Constraints
 	private BigInteger minCount;
 	private BigInteger maxCount;
@@ -67,8 +65,25 @@ public final class Property extends AbstractResource {
 	//Non Validating Property Shape Characteristics.
 	private String name;
 	private String description;
+	private BigDecimal order;
+	private URI group;
+
+	//Shapes
+	private URI severity;
+	private String message;
+	private Boolean isDeactivated;
+	private URI node;
+
 	
-	private boolean isClosed;
+	//Property Pair Constraint Components
+	private URI equals;
+	private URI disjoint;
+	private URI lessThan;
+	private URI lessThanOrEquals;
+	
+	//Other Constraint Components
+	private URI hasValue;
+	
 	
 	public Property() {
 		super();
@@ -92,8 +107,20 @@ public final class Property extends AbstractResource {
 		return predicate;
 	}
 
-	public void setPredicate(URI predicate) {
-		this.predicate = predicate;
+	@OslcDescription("Sets the order of a property")
+	@OslcPropertyDefinition(ShaclConstants.SHACL_CORE_NAMESPACE + "order")
+	@OslcReadOnly
+	@OslcName("order")
+	public BigDecimal getOrder() {
+		return order;
+	}
+
+	@OslcDescription("Indicate that the shape belongs to a group of related property shapes")
+	@OslcPropertyDefinition(ShaclConstants.SHACL_CORE_NAMESPACE + "group")
+	@OslcReadOnly
+	@OslcName("group")
+	public URI getGroup() {
+		return group;
 	}
 
 	@OslcAllowedValue({OslcConstants.XML_NAMESPACE + "boolean",
@@ -131,17 +158,16 @@ public final class Property extends AbstractResource {
 	public String getDescription() {
 		return description;
 	}
-
-	@OslcDescription("target node")
-	@OslcPropertyDefinition(ShaclConstants.SHACL_CORE_NAMESPACE + "targetNode")
-	@OslcReadOnly
-	@OslcName("targetNode")
-	@OslcValueType(ValueType.String)
-	@ShaclDataType(DataType.URI)
-	public URI getTargetNode() {
-		return targetNode;
-	}
 	
+	@OslcDescription("Specifies the message to be shown in resultMessage of Validation report")
+	@OslcPropertyDefinition(ShaclConstants.SHACL_CORE_NAMESPACE + "message")
+	@OslcTitle("Message")
+	@OslcValueType(ValueType.String)
+	@OslcName("message")
+	public String getMessage() {
+		return message;
+	}
+
 	@OslcDescription("Specifies the name")
 	@OslcPropertyDefinition(ShaclConstants.SHACL_CORE_NAMESPACE + "name")
 	@OslcTitle("Name")
@@ -212,16 +238,6 @@ public final class Property extends AbstractResource {
 		return minLength;
 	}
 
-	@OslcDescription("If set to true, the model is not allowed to have any other property apart from those in shapes graph.")
-	@OslcPropertyDefinition(ShaclConstants.SHACL_CORE_NAMESPACE + "closed")
-	@OslcValueType(ValueType.Boolean)
-	@OslcTitle("Closed")
-	public boolean isClosed() {
-		return isClosed;
-		
-	}
-
-
 	@OslcDescription("Specifies the maximum string length of each value node that satisfies the condition.")
 	@OslcPropertyDefinition(ShaclConstants.SHACL_CORE_NAMESPACE + "maxLength")
 	@OslcValueType(ValueType.Integer)
@@ -253,7 +269,15 @@ public final class Property extends AbstractResource {
 	public Boolean getUniqueLang() {
 		return uniqueLang;
 	}
-
+	
+	@OslcDescription("Use cases of this feature include shape reuse and debugging.")
+	@OslcPropertyDefinition(ShaclConstants.SHACL_CORE_NAMESPACE + "isDeactivated")
+	@OslcValueType(ValueType.Boolean)
+	@OslcTitle("Deactivated")
+	public Boolean isDeactivated() {
+		return isDeactivated;
+	}
+	
 	@OslcDescription("Specifies the Class of a node")
 	@OslcPropertyDefinition(ShaclConstants.SHACL_CORE_NAMESPACE + "class")
 	@OslcTitle("Class")
@@ -268,6 +292,13 @@ public final class Property extends AbstractResource {
 	public URI getNodeKind() {
 		return nodeKind;
 	}
+	
+	@OslcDescription("sh:node specifies the condition that each value node conforms to the given node shape.")
+	@OslcPropertyDefinition(ShaclConstants.SHACL_CORE_NAMESPACE + "node")
+	@OslcTitle("Node")
+	public URI getNode() {
+		return node;
+	}
 
 	@OslcDescription("specifies the condition that each value node is a member of a provided SHACL list.")
 	@OslcPropertyDefinition(ShaclConstants.SHACL_CORE_NAMESPACE + "in")
@@ -277,16 +308,104 @@ public final class Property extends AbstractResource {
 		return in;
 	}
 
-	public void setClosed(boolean isClosed) {
-		this.isClosed = isClosed;
+	@OslcDescription("The specific values of sh:severity have no impact on the validation, but may be used by user interface tools to categorize validation results.")
+	@OslcPropertyDefinition(ShaclConstants.SHACL_CORE_NAMESPACE + "severity")
+	@OslcReadOnly
+	@OslcName("severity")
+	public URI getSeverity() {
+		return severity;
+	}
+	
+	@OslcDescription("sh:equals specifies the condition that the set of all value nodes is equal to the set of objects of the "
+			+ "triples that have the focus node as subject and the value of sh:equals as predicate.")
+	@OslcPropertyDefinition(ShaclConstants.SHACL_CORE_NAMESPACE + "equals")
+	@OslcReadOnly
+	@OslcName("equals")
+	public URI getEquals() {
+		return equals;
 	}
 
+	@OslcDescription("sh:disjoint specifies the condition that the set of value nodes is disjoint with the the set of objects of the triples "
+			+ "that have the focus node as subject and the value of sh:equals as predicate.")
+	@OslcPropertyDefinition(ShaclConstants.SHACL_CORE_NAMESPACE + "disjoint")
+	@OslcReadOnly
+	@OslcName("disjoint")
+	public URI getDisjoint() {
+		return disjoint;
+	}
+
+	@OslcDescription("sh:lessThan specifies the condition that each value node is smaller than all the objects of the triples that have the "
+			+ "focus node as subject and the value of sh:lessThan as predicate.")
+	@OslcPropertyDefinition(ShaclConstants.SHACL_CORE_NAMESPACE + "lessThan")
+	@OslcReadOnly
+	@OslcName("lessThan")
+	public URI getLessThan() {
+		return lessThan;
+	}
+
+	@OslcDescription("sh:lessThanOrEquals specifies the condition that each value node is smaller than or equal to all the objects of the triples"
+			+ " that have the focus node as subject and the value of sh:lessThanOrEquals as predicate.")
+	@OslcPropertyDefinition(ShaclConstants.SHACL_CORE_NAMESPACE + "lessThanOrEquals")
+	@OslcReadOnly
+	@OslcName("lessThanOrEquals")
+	public URI getLessThanOrEquals() {
+		return lessThanOrEquals;
+	}
+
+	@OslcDescription("sh:hasValue specifies the condition that at least one value node is equal to the given RDF term.")
+	@OslcPropertyDefinition(ShaclConstants.SHACL_CORE_NAMESPACE + "hasValue")
+	@OslcReadOnly
+	@OslcName("hasValue")
+	public URI getHasValue() {
+		return hasValue;
+	}
+
+	public void setHasValue(URI hasValue) {
+		this.hasValue = hasValue;
+	}
+
+	public void setEquals(URI equals) {
+		this.equals = equals;
+	}
+
+	public void setDisjoint(URI disjoint) {
+		this.disjoint = disjoint;
+	}
+
+	public void setLessThan(URI lessThan) {
+		this.lessThan = lessThan;
+	}
+
+	public void setLessThanOrEquals(URI lessThanOrEquals) {
+		this.lessThanOrEquals = lessThanOrEquals;
+	}
+
+	public void setOrder(BigDecimal order) {
+		this.order = order;
+	}
+
+	public void setGroup(URI group) {
+		this.group = group;
+	}
+	
+	public void setPredicate(URI predicate) {
+		this.predicate = predicate;
+	}
+	
+	public void setSeverity(URI severity) {
+		this.severity = severity;
+	}
+	
 	public void setIn(Object[] in) {
 		this.in = in;
 	}
 
 	public void setNodeKind(URI nodeKind) {
 		this.nodeKind = nodeKind;
+	}
+	
+	public void setNode(URI node) {
+		this.node = node;
 	}
 
 	public void setClassType(URI classType) {
@@ -329,6 +448,10 @@ public final class Property extends AbstractResource {
 		this.uniqueLang = uniqueLang;
 	}
 
+	public void setDeactivated(Boolean deactivated) {
+		this.isDeactivated = deactivated;
+	}
+
 	public void setDataType(DataType dataType) {
 		this.dataType = dataType;
 	}
@@ -345,18 +468,19 @@ public final class Property extends AbstractResource {
 		this.description = description;
 	}
 	
-	public void setTargetNode(URI targetNode) {
-		this.targetNode = targetNode;
+	public void setMessage(String message) {
+		this.message = message;
 	}
-
+	
 	@Override
 	public String toString() {
 		return "Property [predicate=" + predicate + ", classType=" + classType + ", dataType=" + dataType
-				+ ", nodeKind=" + nodeKind + ", minCount=" + minCount + ", maxCount=" + maxCount + ", minExclusive="
-				+ minExclusive + ", maxExclusive=" + maxExclusive + ", minInclusive=" + minInclusive + ", maxInclusive="
-				+ maxInclusive + ", minLength=" + minLength + ", maxLength=" + maxLength + ", pattern=" + pattern
-				+ ", languageIn=" + languageIn + ", uniqueLang=" + uniqueLang + ", in=" + Arrays.toString(in)
-				+ ", name=" + name + ", description=" + description + "]";
+				+ ", nodeKind=" + nodeKind + ", minCount=" + minCount + ", maxCount="
+				+ maxCount + ", minExclusive=" + minExclusive + ", maxExclusive=" + maxExclusive + ", minInclusive="
+				+ minInclusive + ", maxInclusive=" + maxInclusive + ", minLength=" + minLength + ", maxLength="
+				+ maxLength + ", pattern=" + pattern + ", languageIn=" + Arrays.toString(languageIn) + ", uniqueLang="
+				+ uniqueLang + ", in=" + Arrays.toString(in) + ", name=" + name + ", description=" + description
+				+ ", severity=" + severity + ", message=" + message + "]";
 	}
 
 }

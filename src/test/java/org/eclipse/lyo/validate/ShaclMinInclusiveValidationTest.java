@@ -40,11 +40,15 @@ public class ShaclMinInclusiveValidationTest {
 			aResource.addASetOfDates(new Date());
 		
 		Model dataModel =  JenaModelHelper.createJenaModel(new Object[] {aResource});
+		dataModel.write(System.out, "TURTLE");
+		
 		ShaclShape shaclShape = ShaclShapeFactory.createShaclShape(AResource.class);
 		Model shapeModel =  JenaModelHelper.createJenaModel(new Object[] {shaclShape});
+		shapeModel.write(System.out, "TURTLE");
 		
 		Validator validator =  new ValidatorImpl();
 		Result result = validator.validate(dataModel, shapeModel);
+		System.out.println(result);
 		
 		JSONObject obj = new JSONObject(result.toJsonString2spaces());
 		String actualError =  obj.getJSONArray("details").getJSONObject(0).getString("error").split(" ")[0];

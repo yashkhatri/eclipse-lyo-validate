@@ -1,4 +1,14 @@
-P:\git\org.eclipse.lyo.validate\org.eclipse.lyo.validate\src\test\java\org\eclipse\lyo\validate\AResource.java
-P:\git\org.eclipse.lyo.validate\org.eclipse.lyo.validate\src\test\java\org\eclipse\lyo\validate\SampleAdaptorConstants.java
+P:\git\org.eclipse.lyo.validate\org.eclipse.lyo.validate\src\test\java\org\eclipse\lyo\validate\ShaclMaxExclusiveValidationTest.java
+P:\git\org.eclipse.lyo.validate\org.eclipse.lyo.validate\src\test\java\org\eclipse\lyo\validate\ShaclMinInclusiveValidationTest.java
+P:\git\org.eclipse.lyo.validate\org.eclipse.lyo.validate\src\test\java\org\eclipse\lyo\validate\ShaclInValidationTest.java
+P:\git\org.eclipse.lyo.validate\org.eclipse.lyo.validate\src\test\java\org\eclipse\lyo\validate\ShaclPatternValidationTest.java
+P:\git\org.eclipse.lyo.validate\org.eclipse.lyo.validate\src\test\java\org\eclipse\lyo\validate\ShaclMinExclusiveValidationTest.java
+P:\git\org.eclipse.lyo.validate\org.eclipse.lyo.validate\src\test\java\org\eclipse\lyo\validate\ShaclClosedValidationTest.java
+P:\git\org.eclipse.lyo.validate\org.eclipse.lyo.validate\src\test\java\org\eclipse\lyo\validate\ShaclMaxLengthValidationTest.java
+P:\git\org.eclipse.lyo.validate\org.eclipse.lyo.validate\src\test\java\org\eclipse\lyo\validate\ShaclMaxInclusiveValidationTest.java
 P:\git\org.eclipse.lyo.validate\org.eclipse.lyo.validate\src\test\java\org\eclipse\lyo\validate\ValidationExample.java
-P:\git\org.eclipse.lyo.validate\org.eclipse.lyo.validate\src\test\java\org\eclipse\lyo\validate\ValidationExampleTest.java
+P:\git\org.eclipse.lyo.validate\org.eclipse.lyo.validate\src\test\java\org\eclipse\lyo\validate\ShaclMinCountValidationTest.java
+P:\git\org.eclipse.lyo.validate\org.eclipse.lyo.validate\src\test\java\org\eclipse\lyo\validate\ShaclMinLengthValidationTest.java
+P:\git\org.eclipse.lyo.validate\org.eclipse.lyo.validate\src\test\java\org\eclipse\lyo\validate\AResource.java
+P:\git\org.eclipse.lyo.validate\org.eclipse.lyo.validate\src\test\java\org\eclipse\lyo\validate\ShaclMaxCountValidationTest.java
+P:\git\org.eclipse.lyo.validate\org.eclipse.lyo.validate\src\test\java\org\eclipse\lyo\validate\SampleAdaptorConstants.java
