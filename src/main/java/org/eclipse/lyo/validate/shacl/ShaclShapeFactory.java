@@ -113,6 +113,9 @@ public final class ShaclShapeFactory extends ResourceShapeFactory{
 		final ShaclTargetClass shaclTargetClass = resourceClass.getAnnotation(ShaclTargetClass.class);
 		if (shaclTargetClass != null) {
 			shaclShape.setTargetClass(new URI(shaclTargetClass.value()));
+		} else {
+		    shaclShape.setTargetClass(new URI(oslcNamespace.value() + oslcName.value()));
+
 		}
 		//Target Constraints End
 		
