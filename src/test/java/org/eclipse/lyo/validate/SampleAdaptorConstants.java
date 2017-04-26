@@ -38,6 +38,11 @@ public interface SampleAdaptorConstants
     public static String ARESOURCE = "AResource";
     public static String PATH_ARESOURCE = "aResource";
     public static String TYPE_ARESOURCE = SAMPLEDOMAIN_NAMSPACE + "AResource";
+    
+    public static String ANOSLCRESOURCE = "AnOslcResource";
+    public static String PATH_ANOSLCRESOURCE = "anOslcResource";
+    public static String TYPE_ANOSLCRESOURCE = SAMPLEDOMAIN_NAMSPACE + "AnOslcResource";
+    
     public static String ANOTHERRESOURCE = "AnotherResource";
     public static String PATH_ANOTHERRESOURCE = "anotherResource";
     public static String TYPE_ANOTHERRESOURCE = SAMPLEDOMAIN_NAMSPACE + "AnotherResource";

@@ -27,31 +27,16 @@ import org.eclipse.lyo.oslc4j.core.model.OslcConstants;
 import org.eclipse.lyo.oslc4j.core.model.ResourceShape;
 import org.eclipse.lyo.oslc4j.core.model.ResourceShapeFactory;
 import org.eclipse.lyo.oslc4j.core.model.ValueType;
-import org.eclipse.lyo.validate.constants.DataType;
 import org.eclipse.lyo.validate.impl.ValidatorImpl;
 import org.eclipse.lyo.validate.shacl.ShaclShape;
 import org.eclipse.lyo.validate.shacl.ShaclShapeFactory;
-import org.eclipse.lyo.validate.shacl.annotations.ShaclClassType;
-import org.eclipse.lyo.validate.shacl.annotations.ShaclDataType;
-import org.eclipse.lyo.validate.shacl.annotations.ShaclIn;
-import org.eclipse.lyo.validate.shacl.annotations.ShaclMaxCount;
-import org.eclipse.lyo.validate.shacl.annotations.ShaclMaxExclusive;
-import org.eclipse.lyo.validate.shacl.annotations.ShaclMaxInclusive;
-import org.eclipse.lyo.validate.shacl.annotations.ShaclMaxLength;
-import org.eclipse.lyo.validate.shacl.annotations.ShaclMinCount;
-import org.eclipse.lyo.validate.shacl.annotations.ShaclMinExclusive;
-import org.eclipse.lyo.validate.shacl.annotations.ShaclMinInclusive;
-import org.eclipse.lyo.validate.shacl.annotations.ShaclMinLength;
-import org.eclipse.lyo.validate.shacl.annotations.ShaclPattern;
-import org.eclipse.lyo.validate.shacl.annotations.ShaclTargetClass;
 
 import es.weso.schema.Result;
 
 @OslcNamespace(SampleAdaptorConstants.SAMPLEDOMAIN_NAMSPACE)
-@OslcName(SampleAdaptorConstants.ARESOURCE)
+@OslcName(SampleAdaptorConstants.ANOSLCRESOURCE)
 @OslcResourceShape(title = "AResource Resource Shape", describes = SampleAdaptorConstants.TYPE_ARESOURCE)
-@ShaclTargetClass(SampleAdaptorConstants.SAMPLEDOMAIN_NAMSPACE + SampleAdaptorConstants.ARESOURCE)
-public class AResource extends AbstractResource {
+public class AnOslcResource extends AbstractResource {
 	private BigInteger anIntegerProperty;
 	private BigInteger integerProperty2;
 	private BigInteger anotherIntegerProperty;
@@ -61,13 +46,13 @@ public class AResource extends AbstractResource {
 	private Link aReferenceProperty = new Link();
 	private BigInteger integerProperty3;
 	private static ShaclShape shaclShape = null;
-	private static ResourceShape resourceShape = null;;
+	private static ResourceShape resourceShape = null;
 
-	public AResource() throws URISyntaxException {
+	public AnOslcResource() throws URISyntaxException {
 		super();
 	}
 
-	public AResource(final URI about) throws URISyntaxException {
+	public AnOslcResource(final URI about) throws URISyntaxException {
 		super(about);
 	}
 
@@ -76,56 +61,41 @@ public class AResource extends AbstractResource {
 	@OslcOccurs(Occurs.ExactlyOne)
 	@OslcValueType(ValueType.Integer)
 	@OslcReadOnly(false)
-	@ShaclMinCount(0)
-	@ShaclMaxCount(0)
-	@ShaclDataType(DataType.Integer)
-	@ShaclMaxLength(2)
-	@ShaclMinLength(1)
 	public BigInteger getAnIntegerProperty() {
 		return anIntegerProperty;
 	}
 
-	
+
 	@OslcName("integerProperty2")
 	@OslcPropertyDefinition(SampleAdaptorConstants.SAMPLEDOMAIN_NAMSPACE + "integerProperty2")
 	@OslcOccurs(Occurs.ExactlyOne)
 	@OslcValueType(ValueType.Integer)
 	@OslcReadOnly(false)
-	@ShaclMaxExclusive(15)
-	@ShaclMinExclusive(5)
-public BigInteger getIntegerProperty2() {
+	public BigInteger getIntegerProperty2() {
 		return integerProperty2;
 	}
 	public void setIntegerProperty2(BigInteger integerProperty2) {
 		this.integerProperty2 = integerProperty2;
 	}
 
-	
+
 	@OslcName("integerProperty3")
 	@OslcPropertyDefinition(SampleAdaptorConstants.SAMPLEDOMAIN_NAMSPACE + "integerProperty3")
 	@OslcOccurs(Occurs.ExactlyOne)
 	@OslcValueType(ValueType.Integer)
 	@OslcReadOnly(false)
-	@ShaclMaxInclusive(15)
-	@ShaclMinInclusive(5)
-public BigInteger getIntegerProperty3() {
+	public BigInteger getIntegerProperty3() {
 		return integerProperty3;
 	}
 	public void setIntegerProperty3(BigInteger integerProperty3) {
 		this.integerProperty3 = integerProperty3;
 	}
-	
+
 	@OslcName("anotherIntegerProperty")
 	@OslcPropertyDefinition(SampleAdaptorConstants.SAMPLEDOMAIN_NAMSPACE + "anotherIntegerProperty")
-	@OslcOccurs(Occurs.ExactlyOne)
+	@OslcOccurs(Occurs.ZeroOrMany)
 	@OslcValueType(ValueType.Integer)
 	@OslcReadOnly(false)
-	@ShaclMinCount(1)
-	@ShaclMaxCount(1)
-	@ShaclDataType(DataType.Integer)
-	@ShaclMaxLength(2)
-	@ShaclMinLength(1)
-	@ShaclIn(valueType = Integer.class, value = { "5", "7", "9", "12" })
 	public BigInteger getAnotherIntegerProperty() {
 		return anotherIntegerProperty;
 	}
@@ -133,13 +103,9 @@ public BigInteger getIntegerProperty3() {
 	@OslcName("aStringProperty")
 	@OslcPropertyDefinition(SampleAdaptorConstants.SAMPLEDOMAIN_NAMSPACE + "aStringProperty")
 	@OslcDescription("a Simple Single String Property")
+	@OslcOccurs(Occurs.OneOrMany)
 	@OslcValueType(ValueType.String)
 	@OslcTitle("a Property")
-	@ShaclMinCount(1)
-	@ShaclMaxCount(1)
-	@ShaclPattern("^B")
-	@ShaclMinLength(7)
-	@ShaclMaxLength(10)
 	public String getAStringProperty() {
 		return aStringProperty;
 	}
@@ -149,8 +115,6 @@ public BigInteger getIntegerProperty3() {
 	@OslcOccurs(Occurs.OneOrMany)
 	@OslcValueType(ValueType.DateTime)
 	@OslcReadOnly(false)
-	@ShaclMaxCount(2)
-	@ShaclMinCount(0)
 	public HashSet<Date> getASetOfDates() {
 		return aSetOfDates;
 	}
@@ -161,7 +125,6 @@ public BigInteger getIntegerProperty3() {
 	@OslcValueType(ValueType.Resource)
 	@OslcRange({ SampleAdaptorConstants.TYPE_ANOTHERRESOURCE })
 	@OslcReadOnly(false)
-	@ShaclClassType(SampleAdaptorConstants.SAMPLEDOMAIN_NAMSPACE + SampleAdaptorConstants.ANOTHERRESOURCE)
 	public Link getAReferenceProperty() {
 		return aReferenceProperty;
 	}
@@ -195,7 +158,7 @@ public BigInteger getIntegerProperty3() {
 
 	public Result validate() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException,
 	DatatypeConfigurationException, OslcCoreApplicationException, URISyntaxException {
-		ShaclShape shaclShape = ShaclShapeFactory.createShaclShape(AResource.class);
+		ShaclShape shaclShape = ShaclShapeFactory.createShaclShape(AnOslcResource.class);
 		return new ValidatorImpl().validate(this, shaclShape);
 	}
 
@@ -207,7 +170,7 @@ public BigInteger getIntegerProperty3() {
 	}
 
 	private ShaclShape createShaclShape() throws OslcCoreApplicationException, URISyntaxException {
-		shaclShape = ShaclShapeFactory.createShaclShape(AResource.class);
+		shaclShape = ShaclShapeFactory.createShaclShape(AnOslcResource.class);
 		return shaclShape;
 	}
 
@@ -221,7 +184,9 @@ public BigInteger getIntegerProperty3() {
 	private ResourceShape createResourceShape() throws OslcCoreApplicationException, URISyntaxException {
 		return ResourceShapeFactory.createResourceShape("Temp_Service_Base", 
 				OslcConstants.PATH_RESOURCE_SHAPES, 
-				SampleAdaptorConstants.PATH_ARESOURCE,  
-				AResource.class);
+				SampleAdaptorConstants.PATH_ANOSLCRESOURCE,  
+				AnOslcResource.class);
 	}
+
+
 }
