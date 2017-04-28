@@ -4,6 +4,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.math.BigInteger;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.text.ParseException;
 import java.util.Date;
 import java.util.HashSet;
 
@@ -120,7 +121,7 @@ public BigInteger getIntegerProperty3() {
 	@ShaclDataType(DataType.Integer)
 	@ShaclMaxLength(2)
 	@ShaclMinLength(1)
-	@ShaclIn(valueType = Integer.class, value = { "5", "7", "9", "12" })
+	@ShaclIn(value = { "5", "7", "9", "12" })
 	public BigInteger getAnotherIntegerProperty() {
 		return anotherIntegerProperty;
 	}
@@ -189,7 +190,7 @@ public BigInteger getIntegerProperty3() {
 	}
 
 	public Result validate() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException,
-			DatatypeConfigurationException, OslcCoreApplicationException, URISyntaxException {
+			DatatypeConfigurationException, OslcCoreApplicationException, URISyntaxException, ParseException {
 		ShaclShape shaclShape = ShaclShapeFactory.createShaclShape(AResource.class);
 		return new ValidatorImpl().validate(this, shaclShape);
 	}

@@ -23,6 +23,7 @@ P:\git\org.eclipse.lyo.validate\org.eclipse.lyo.validate\src\main\java\org\eclip
 P:\git\org.eclipse.lyo.validate\org.eclipse.lyo.validate\src\main\java\org\eclipse\lyo\validate\Validator.java
 P:\git\org.eclipse.lyo.validate\org.eclipse.lyo.validate\src\main\java\org\eclipse\lyo\validate\shacl\annotations\ShaclLessThan.java
 P:\git\org.eclipse.lyo.validate\org.eclipse.lyo.validate\src\main\java\org\eclipse\lyo\validate\shacl\annotations\ShaclLanguageIn.java
+P:\git\org.eclipse.lyo.validate\org.eclipse.lyo.validate\src\main\java\org\eclipse\lyo\validate\shacl\annotations\ShaclNode.java
 P:\git\org.eclipse.lyo.validate\org.eclipse.lyo.validate\src\main\java\org\eclipse\lyo\validate\shacl\ShaclConstants.java
 P:\git\org.eclipse.lyo.validate\org.eclipse.lyo.validate\src\main\java\org\eclipse\lyo\validate\constants\package-info.java
 P:\git\org.eclipse.lyo.validate\org.eclipse.lyo.validate\src\main\java\org\eclipse\lyo\validate\shacl\annotations\ShaclTargetNode.java
