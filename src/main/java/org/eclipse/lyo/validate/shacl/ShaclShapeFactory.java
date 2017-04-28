@@ -8,11 +8,17 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.text.DateFormat;
+import java.text.DecimalFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.eclipse.lyo.oslc4j.core.annotation.OslcAllowedValue;
+import org.eclipse.lyo.oslc4j.core.annotation.OslcAllowedValues;
 import org.eclipse.lyo.oslc4j.core.annotation.OslcDescription;
 import org.eclipse.lyo.oslc4j.core.annotation.OslcMaxSize;
 import org.eclipse.lyo.oslc4j.core.annotation.OslcName;
@@ -66,14 +72,26 @@ import org.eclipse.lyo.validate.shacl.annotations.ShaclTargetObjectsOf;
 import org.eclipse.lyo.validate.shacl.annotations.ShaclTargetSubjectsOf;
 import org.eclipse.lyo.validate.shacl.annotations.ShaclUniqueLang;
 
-
+/**
+ * 
+ * @author Yash Khatri
+ * 		   yash.s.khatri@gmail.com	
+ *
+ *This class contains code for creating Shacl shapes form the Abstract Resource Classes. 
+ *It reads the Shacl constraints or oslc constraints in the form of annotations and 
+ *populate the ShaclShape instance and property instances.
+ *
+ * It checks whether the ShaclAnnotations are available in Abstract Resource Class.
+ * If it does, then it reads the Shacl Annotations for populating ShaclShape instance.
+ * Otherwise,it reads the oslc annotations to create ShaclShape instance.
+ */
 public final class ShaclShapeFactory extends ResourceShapeFactory{
 	private static final String METHOD_NAME_START_GET = "get";
 	private static final String METHOD_NAME_START_IS  = "is";
 
 	private static final int METHOD_NAME_START_GET_LENGTH = METHOD_NAME_START_GET.length();
 	private static final int METHOD_NAME_START_IS_LENGTH  = METHOD_NAME_START_IS.length();
-	
+
 	private static boolean readShaclAnnotations = false;
 
 
@@ -82,7 +100,7 @@ public final class ShaclShapeFactory extends ResourceShapeFactory{
 	}
 
 	public static ShaclShape createShaclShape(final Class<?> resourceClass)
-			throws OslcCoreApplicationException, URISyntaxException {
+			throws OslcCoreApplicationException, URISyntaxException, ParseException {
 		final HashSet<Class<?>> verifiedClasses = new HashSet<Class<?>>();
 		verifiedClasses.add(resourceClass);
 
@@ -91,7 +109,7 @@ public final class ShaclShapeFactory extends ResourceShapeFactory{
 
 	private static ShaclShape createShaclShape(final Class<?> resourceClass,
 			final Set<Class<?>> verifiedClasses)
-					throws OslcCoreApplicationException, URISyntaxException {
+					throws OslcCoreApplicationException, URISyntaxException, ParseException {
 		final OslcResourceShape resourceShapeAnnotation = resourceClass.getAnnotation(OslcResourceShape.class);
 		if (resourceShapeAnnotation == null) {
 			throw new OslcCoreMissingAnnotationException(resourceClass, OslcResourceShape.class);
@@ -107,8 +125,10 @@ public final class ShaclShapeFactory extends ResourceShapeFactory{
 
 		final Set<String> propertyDefinitions = new HashSet<String>();
 
+		//Create Properties. Also check if shacl annotations are available or not.
 		createProperties(resourceClass, verifiedClasses, shaclShape, propertyDefinitions, true);
 
+		//If shacl annotations are available. No need to populate property instance form oslc annotations. 
 		if(!readShaclAnnotations) {
 			shaclShape.setShaclProperties(null);
 			propertyDefinitions.clear();
@@ -120,6 +140,7 @@ public final class ShaclShapeFactory extends ResourceShapeFactory{
 		return shaclShape;
 	}
 
+
 	/**
 	 * @param resourceClass
 	 * @param oslcNamespace
@@ -127,6 +148,8 @@ public final class ShaclShapeFactory extends ResourceShapeFactory{
 	 * @param about
 	 * @return
 	 * @throws URISyntaxException
+	 * 
+	 * This method populates the class level annotations in the ShaclShape instance. 
 	 */
 	private static void populateFromClassLevelAnnotations(ShaclShape shaclShape, final Class<?> resourceClass, OslcNamespace oslcNamespace,
 			OslcName oslcName, final URI about) throws URISyntaxException {
@@ -195,11 +218,14 @@ public final class ShaclShapeFactory extends ResourceShapeFactory{
 	 * @throws URISyntaxException
 	 * @throws OslcCoreApplicationException
 	 * @throws OslcCoreMissingSetMethodException
+	 * 
+	 * This is the entry method for creating properties.
+	 * @throws ParseException 
 	 */
 	private static void createProperties(final Class<?> resourceClass, final Set<Class<?>> verifiedClasses,
 			final ShaclShape shaclShape, final Set<String> propertyDefinitions, boolean chooseShacl)
-			throws OslcCoreDuplicatePropertyDefinitionException, URISyntaxException, OslcCoreApplicationException,
-			OslcCoreMissingSetMethodException {
+					throws OslcCoreDuplicatePropertyDefinitionException, URISyntaxException, OslcCoreApplicationException,
+					OslcCoreMissingSetMethodException, ParseException {
 		for (final Method method : resourceClass.getMethods()) {
 			if (method.getParameterTypes().length == 0) {
 				final String methodName = method.getName();
@@ -222,8 +248,8 @@ public final class ShaclShapeFactory extends ResourceShapeFactory{
 							final Property property = 	createPropertiesFromOslcAnnotations(resourceClass, method, propertyDefinitionAnnotation, verifiedClasses);
 							shaclShape.addProperty(property);
 						} 
-							
-						
+
+
 
 						validateSetMethodExists(resourceClass, method);
 					}
@@ -232,79 +258,19 @@ public final class ShaclShapeFactory extends ResourceShapeFactory{
 		}
 	}
 
-	private static Property createPropertiesFromOslcAnnotations(Class<?> resourceClass, Method method, OslcPropertyDefinition propertyDefinitionAnnotation, Set<Class<?>> verifiedClasses) throws URISyntaxException, OslcCoreApplicationException {
 
-		Class<?> componentType = 	createPropertyCommon(resourceClass, method, propertyDefinitionAnnotation, verifiedClasses);
-
-		final Property property = new Property();
-		property.setPredicate(new URI(propertyDefinitionAnnotation.value()));
-
-
-		//Setting Value Type
-		ValueType valueType = null;
-		final OslcValueType valueTypeAnnotation = InheritedMethodAnnotationHelper.getAnnotation(method, OslcValueType.class);
-		if (valueTypeAnnotation != null) {
-			valueType = valueTypeAnnotation.value();
-			validateUserSpecifiedValueType(resourceClass, method, valueType, componentType);
-			property.setDataType(DataType.fromString(valueType.toString()));
-
-		}
-
-		//Cardinality Constraint Components Start
-		final OslcOccurs oslcOccurs = InheritedMethodAnnotationHelper.getAnnotation(method, OslcOccurs.class);
-		if (oslcOccurs != null && oslcOccurs.value().equals(Occurs.ExactlyOne)) {
-			property.setMaxCount(new BigInteger("1"));
-			property.setMinCount(new BigInteger("1"));
-		}
-
-		if (oslcOccurs != null && oslcOccurs.value().equals(Occurs.OneOrMany)) {
-			property.setMinCount(new BigInteger("1"));
-		}
-
-		if (oslcOccurs != null && oslcOccurs.value().equals(Occurs.ZeroOrMany)) {
-			property.setMinCount(new BigInteger("0"));
-		}
-		
-		if (oslcOccurs != null && oslcOccurs.value().equals(Occurs.ZeroOrOne)) {
-			property.setMinCount(new BigInteger("0"));
-			property.setMaxCount(new BigInteger("0"));
-		}
-		//Cardinality Constraint Components End
-
-		
-		//String Based Constraints Start
-		final OslcMaxSize oslcMaxSize = InheritedMethodAnnotationHelper.getAnnotation(method, OslcMaxSize.class);
-		if (oslcMaxSize != null) {
-			property.setMaxLength(new BigInteger(String.valueOf(oslcMaxSize.value())));
-		}
-		//String Based Constraints End
-
-
-		final OslcName oslcName = InheritedMethodAnnotationHelper.getAnnotation(method, OslcName.class);
-		if (oslcName != null) {
-			property.setName(oslcName.value());
-		}
-		
-		final OslcDescription oslcDescription = InheritedMethodAnnotationHelper.getAnnotation(method, OslcDescription.class);
-		if (oslcDescription != null) {
-			property.setDescription(oslcDescription.value());
-		}
-
-		final OslcValueShape oslcValueShape = InheritedMethodAnnotationHelper.getAnnotation(method, OslcValueShape.class);
-		if (oslcValueShape != null) {
-			property.setNode(new URI(oslcValueShape.value()));
-		}
-		
-//		final OslcRange oslcRange = InheritedMethodAnnotationHelper.getAnnotation(method, OslcRange.class);
-//		if (oslcRange != null) {
-//			property.setHasValue(new URI(oslcRange.value()));   //have multiple values check this..
-//		}
-
-		return property;
-	}
-
-	//***
-
+	/**
+	 * 
+	 * @param resourceClass
+	 * @param method
+	 * @param propertyDefinitionAnnotation
+	 * @param verifiedClasses
+	 * @return
+	 * @throws OslcCoreApplicationException
+	 * @throws URISyntaxException
+	 * 
+	 * It is a common method for creating properties. 
+	 */
 	@SuppressWarnings("rawtypes") // supress warning when casting Arrays.asList() to a Collection
 	private static Class<?> createPropertyCommon( final Class<?> resourceClass, final Method method, final OslcPropertyDefinition propertyDefinitionAnnotation, final Set<Class<?>> verifiedClasses) throws OslcCoreApplicationException, URISyntaxException {
 		final String name;
@@ -350,18 +316,19 @@ public final class ShaclShapeFactory extends ResourceShapeFactory{
 	}
 
 	/**
+	 * 
 	 * @param resourceClass
 	 * @param method
-	 * @param propertyDefinition
-	 * @param componentType
+	 * @param propertyDefinitionAnnotation
+	 * @param verifiedClasses
 	 * @return
 	 * @throws URISyntaxException
-	 * @throws OslcCoreApplicationException 
+	 * @throws OslcCoreApplicationException
+	 * 
+	 * This method reads the OSLC annotations for populating property instances.
+	 * @throws ParseException 
 	 */
-	private static Property createPropertiesFromShaclAnnotations(final Class<?> resourceClass, final Method method,
-			final OslcPropertyDefinition propertyDefinitionAnnotation , final Set<Class<?>> verifiedClasses)
-					throws URISyntaxException, OslcCoreApplicationException {
-
+	private static Property createPropertiesFromOslcAnnotations(Class<?> resourceClass, Method method, OslcPropertyDefinition propertyDefinitionAnnotation, Set<Class<?>> verifiedClasses) throws URISyntaxException, OslcCoreApplicationException, ParseException {
 
 		Class<?> componentType = 	createPropertyCommon(resourceClass, method, propertyDefinitionAnnotation, verifiedClasses);
 
@@ -375,6 +342,203 @@ public final class ShaclShapeFactory extends ResourceShapeFactory{
 		if (valueTypeAnnotation != null) {
 			valueType = valueTypeAnnotation.value();
 			validateUserSpecifiedValueType(resourceClass, method, valueType, componentType);
+			property.setDataType(DataType.fromString(valueType.toString()));
+
+
+			final OslcAllowedValue oslcAllowedValue = InheritedMethodAnnotationHelper.getAnnotation(method, OslcAllowedValue.class);
+			if (oslcAllowedValue != null) {
+
+				DateFormat df = new SimpleDateFormat("MM/dd/yyyy");
+				SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+				DecimalFormat decimalFormat = new DecimalFormat("0.00");
+				decimalFormat.setMaximumFractionDigits(2);
+
+				Object[] object = new Object[oslcAllowedValue.value().length];
+
+				for(int i = 0;i < oslcAllowedValue.value().length; i++) {
+					if(valueType.equals(ValueType.Boolean)) {
+						object[i] =  Boolean.parseBoolean(oslcAllowedValue.value()[i]);
+					} else if(valueType.equals(ValueType.Date)) {
+						object[i] =  df.parse(oslcAllowedValue.value()[i]);
+					} else if(valueType.equals(ValueType.DateTime)) {
+						object[i] =  formatter.parse(oslcAllowedValue.value()[i]);
+					} else if(valueType.equals(ValueType.Decimal)) {
+						object[i] =  Float.parseFloat(df.format(oslcAllowedValue.value()[i]));
+					} else if(valueType.equals(ValueType.Double)) {
+						object[i] =  Double.parseDouble(oslcAllowedValue.value()[i]);
+					} else if(valueType.equals(ValueType.Float)) {
+						object[i] =  Float.parseFloat(oslcAllowedValue.value()[i]);
+					} else if(valueType.equals(ValueType.Integer)) {
+						object[i] =  Integer.parseInt(oslcAllowedValue.value()[i]);
+					} else if(valueType.equals(ValueType.String)) {
+						object[i] =  oslcAllowedValue.value()[i];
+					} else 
+						object[i] =  oslcAllowedValue.value()[i];
+				}
+
+				property.setIn(object);
+				readShaclAnnotations = true;
+			}
+
+			final OslcAllowedValues oslcAllowedValues = InheritedMethodAnnotationHelper.getAnnotation(method, OslcAllowedValues.class);
+			if (oslcAllowedValues != null) {
+
+				DateFormat df = new SimpleDateFormat("MM/dd/yyyy");
+				SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+				DecimalFormat decimalFormat = new DecimalFormat("0.00");
+				decimalFormat.setMaximumFractionDigits(2);
+
+				Object object = new Object();
+
+				if(valueType.equals(ValueType.Boolean)) {
+					object =  Boolean.parseBoolean(oslcAllowedValues.value());
+				} else if(valueType.equals(ValueType.Date)) {
+					object =  df.parse(oslcAllowedValues.value());
+				} else if(valueType.equals(ValueType.DateTime)) {
+					object =  formatter.parse(oslcAllowedValues.value());
+				} else if(valueType.equals(ValueType.Decimal)) {
+					object =  Float.parseFloat(df.format(oslcAllowedValues.value()));
+				} else if(valueType.equals(ValueType.Double)) {
+					object =  Double.parseDouble(oslcAllowedValues.value());
+				} else if(valueType.equals(ValueType.Float)) {
+					object =  Float.parseFloat(oslcAllowedValues.value());
+				} else if(valueType.equals(ValueType.Integer)) {
+					object =  Integer.parseInt(oslcAllowedValues.value());
+				} else if(valueType.equals(ValueType.String)) {
+					object =  oslcAllowedValues.value();
+				} else 
+					object =  oslcAllowedValues.value();
+
+				property.addIn(object);
+				readShaclAnnotations = true;
+			}
+
+
+
+
+		}
+
+		//Cardinality Constraint Components Start
+		final OslcOccurs oslcOccurs = InheritedMethodAnnotationHelper.getAnnotation(method, OslcOccurs.class);
+		if (oslcOccurs != null && oslcOccurs.value().equals(Occurs.ExactlyOne)) {
+			property.setMaxCount(new BigInteger("1"));
+			property.setMinCount(new BigInteger("1"));
+		}
+
+		if (oslcOccurs != null && oslcOccurs.value().equals(Occurs.OneOrMany)) {
+			property.setMinCount(new BigInteger("1"));
+		}
+
+		if (oslcOccurs != null && oslcOccurs.value().equals(Occurs.ZeroOrMany)) {
+			property.setMinCount(new BigInteger("0"));
+		}
+
+		if (oslcOccurs != null && oslcOccurs.value().equals(Occurs.ZeroOrOne)) {
+			property.setMinCount(new BigInteger("0"));
+			property.setMaxCount(new BigInteger("0"));
+		}
+		//Cardinality Constraint Components End
+
+
+		//String Based Constraints Start
+		final OslcMaxSize oslcMaxSize = InheritedMethodAnnotationHelper.getAnnotation(method, OslcMaxSize.class);
+		if (oslcMaxSize != null) {
+			property.setMaxLength(new BigInteger(String.valueOf(oslcMaxSize.value())));
+		}
+		//String Based Constraints End
+
+
+		final OslcName oslcName = InheritedMethodAnnotationHelper.getAnnotation(method, OslcName.class);
+		if (oslcName != null) {
+			property.setName(oslcName.value());
+		}
+
+		final OslcDescription oslcDescription = InheritedMethodAnnotationHelper.getAnnotation(method, OslcDescription.class);
+		if (oslcDescription != null) {
+			property.setDescription(oslcDescription.value());
+		}
+
+		final OslcValueShape oslcValueShape = InheritedMethodAnnotationHelper.getAnnotation(method, OslcValueShape.class);
+		if (oslcValueShape != null) {
+			property.setNode(new URI(oslcValueShape.value()));
+		}
+
+		//		final OslcRange oslcRange = InheritedMethodAnnotationHelper.getAnnotation(method, OslcRange.class);
+		//		if (oslcRange != null) {
+		//			property.setHasValue(new URI(oslcRange.value()));   //have multiple values check this..
+		//		}
+
+		//Other Constraint Components
+
+		return property;
+	}
+
+	/**
+	 * @param resourceClass
+	 * @param method
+	 * @param propertyDefinition
+	 * @param componentType
+	 * @return
+	 * @throws URISyntaxException
+	 * @throws OslcCoreApplicationException 
+	 * 
+	 * This method reads shacl annotations for populating property instances. 
+	 * @throws ParseException 
+	 */
+	private static Property createPropertiesFromShaclAnnotations(final Class<?> resourceClass, final Method method,
+			final OslcPropertyDefinition propertyDefinitionAnnotation , final Set<Class<?>> verifiedClasses)
+					throws URISyntaxException, OslcCoreApplicationException, ParseException {
+
+
+		Class<?> componentType = 	createPropertyCommon(resourceClass, method, propertyDefinitionAnnotation, verifiedClasses);
+
+		final Property property = new Property();
+		property.setPredicate(new URI(propertyDefinitionAnnotation.value()));
+
+
+		//Setting Value Type
+		DataType dataType = null;
+		final ShaclDataType dataTypeAnnotation = InheritedMethodAnnotationHelper.getAnnotation(method, ShaclDataType.class);
+		if (dataTypeAnnotation != null) {
+			dataType = dataTypeAnnotation.value();
+			property.setDataType(dataType);
+			readShaclAnnotations = true;
+
+			//Other Constraint Components
+			final ShaclIn inAnnotation = InheritedMethodAnnotationHelper.getAnnotation(method, ShaclIn.class);
+			if (inAnnotation != null) {
+				
+				DateFormat df = new SimpleDateFormat("MM/dd/yyyy");
+				SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+				DecimalFormat decimalFormat = new DecimalFormat("0.00");
+				decimalFormat.setMaximumFractionDigits(2);
+				
+				
+				Object[] object = new Object[inAnnotation.value().length];
+				for(int i = 0;i < inAnnotation.value().length; i++) {
+					if(dataType == DataType.Integer) {
+						object[i] =  new BigInteger(inAnnotation.value()[i]);
+					} else if (dataType == DataType.String){
+						object[i] =  inAnnotation.value()[i];
+					} else if(dataType == DataType.URI) {
+						object[i] =  new URI(inAnnotation.value()[i]);
+					} else if(dataType == DataType.Boolean) {
+						object[i] =  Boolean.parseBoolean(inAnnotation.value()[i]);
+					} else if(dataType == DataType.Date) {
+						object[i] =  df.parse(inAnnotation.value()[i]);
+					} else if(dataType == DataType.DateTime) {
+						object[i] =  formatter.parse(inAnnotation.value().toString());
+					} else if(dataType == DataType.Double) {
+						object[i] =  Double.parseDouble(inAnnotation.value()[i]);
+					} else if(dataType == DataType.Float) {
+						object[i] =  Float.parseFloat(inAnnotation.value()[i]);
+					} else if(dataType == DataType.Decimal) {
+						object[i] =  Float.parseFloat(inAnnotation.value()[i]);
+					}
+				}
+				property.setIn(object);
+				readShaclAnnotations = true;
+			}
 		}
 
 		final ShaclDataType dataTypeAnotation  = InheritedMethodAnnotationHelper.getAnnotation(method, ShaclDataType.class);
@@ -493,22 +657,6 @@ public final class ShaclShapeFactory extends ResourceShapeFactory{
 		}
 		//String Based Constraints End
 
-		//Other Constraint Components
-		final ShaclIn inAnnotation = InheritedMethodAnnotationHelper.getAnnotation(method, ShaclIn.class);
-		if (inAnnotation != null) {
-			Object[] object = new Object[inAnnotation.value().length];
-			for(int i = 0;i < inAnnotation.value().length; i++) {
-				if(inAnnotation.valueType() == Integer.class) {
-					object[i] =  new BigInteger(inAnnotation.value()[i]);
-				} else if (inAnnotation.valueType() == String.class){
-					object[i] =  inAnnotation.value()[i];
-				} else if(inAnnotation.valueType() == URI.class) {
-					object[i] =  new URI(inAnnotation.value()[i]);
-				}
-			}
-			property.setIn(object);
-			readShaclAnnotations = true;
-		}
 
 		final ShaclHasValue shaclHasValue = InheritedMethodAnnotationHelper.getAnnotation(method, ShaclHasValue.class);
 		if (shaclHasValue != null) {

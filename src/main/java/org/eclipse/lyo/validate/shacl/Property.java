@@ -9,6 +9,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.Arrays;
 
 import org.eclipse.lyo.oslc4j.core.annotation.OslcAllowedValue;
@@ -36,32 +37,32 @@ import org.eclipse.lyo.validate.shacl.annotations.ShaclDataType;
 public final class Property extends AbstractResource {
 
 	private URI predicate;
-	
+
 	//Value Type Constraints
 	private URI classType;
 	private DataType dataType;
 	private URI nodeKind;
-	
+
 	//Cardinality Constraints
 	private BigInteger minCount;
 	private BigInteger maxCount;
-	
+
 	//Value Range Constraints
 	private BigInteger minExclusive;
 	private BigInteger maxExclusive;
 	private BigInteger minInclusive;
 	private BigInteger maxInclusive;
-	
+
 	//String Based Constraints
 	private BigInteger minLength;
 	private BigInteger maxLength;
 	private String pattern;
 	private String[] languageIn;
 	private Boolean uniqueLang;
-	
+
 	//Values Based Constraints
 	private  Object[] in;
-	
+
 	//Non Validating Property Shape Characteristics.
 	private String name;
 	private String description;
@@ -74,17 +75,17 @@ public final class Property extends AbstractResource {
 	private Boolean isDeactivated;
 	private URI node;
 
-	
+
 	//Property Pair Constraint Components
 	private URI equals;
 	private URI disjoint;
 	private URI lessThan;
 	private URI lessThanOrEquals;
-	
+
 	//Other Constraint Components
 	private URI hasValue;
-	
-	
+
+
 	public Property() {
 		super();
 	}
@@ -158,7 +159,7 @@ public final class Property extends AbstractResource {
 	public String getDescription() {
 		return description;
 	}
-	
+
 	@OslcDescription("Specifies the message to be shown in resultMessage of Validation report")
 	@OslcPropertyDefinition(ShaclConstants.SHACL_CORE_NAMESPACE + "message")
 	@OslcTitle("Message")
@@ -269,7 +270,7 @@ public final class Property extends AbstractResource {
 	public Boolean getUniqueLang() {
 		return uniqueLang;
 	}
-	
+
 	@OslcDescription("Use cases of this feature include shape reuse and debugging.")
 	@OslcPropertyDefinition(ShaclConstants.SHACL_CORE_NAMESPACE + "isDeactivated")
 	@OslcValueType(ValueType.Boolean)
@@ -277,7 +278,7 @@ public final class Property extends AbstractResource {
 	public Boolean isDeactivated() {
 		return isDeactivated;
 	}
-	
+
 	@OslcDescription("Specifies the Class of a node")
 	@OslcPropertyDefinition(ShaclConstants.SHACL_CORE_NAMESPACE + "class")
 	@OslcTitle("Class")
@@ -292,7 +293,7 @@ public final class Property extends AbstractResource {
 	public URI getNodeKind() {
 		return nodeKind;
 	}
-	
+
 	@OslcDescription("sh:node specifies the condition that each value node conforms to the given node shape.")
 	@OslcPropertyDefinition(ShaclConstants.SHACL_CORE_NAMESPACE + "node")
 	@OslcTitle("Node")
@@ -315,7 +316,7 @@ public final class Property extends AbstractResource {
 	public URI getSeverity() {
 		return severity;
 	}
-	
+
 	@OslcDescription("sh:equals specifies the condition that the set of all value nodes is equal to the set of objects of the "
 			+ "triples that have the focus node as subject and the value of sh:equals as predicate.")
 	@OslcPropertyDefinition(ShaclConstants.SHACL_CORE_NAMESPACE + "equals")
@@ -387,23 +388,35 @@ public final class Property extends AbstractResource {
 	public void setGroup(URI group) {
 		this.group = group;
 	}
-	
+
 	public void setPredicate(URI predicate) {
 		this.predicate = predicate;
 	}
-	
+
 	public void setSeverity(URI severity) {
 		this.severity = severity;
 	}
-	
+
 	public void setIn(Object[] in) {
 		this.in = in;
+	}
+
+	public void addIn(Object newIn) {
+		appendValue(in, newIn);
+	}
+
+	private Object[] appendValue(Object[] obj, Object newObj) {
+
+		ArrayList<Object> temp = new ArrayList<Object>(Arrays.asList(obj));
+		temp.add(newObj);
+		return temp.toArray();
+
 	}
 
 	public void setNodeKind(URI nodeKind) {
 		this.nodeKind = nodeKind;
 	}
-	
+
 	public void setNode(URI node) {
 		this.node = node;
 	}
@@ -455,7 +468,7 @@ public final class Property extends AbstractResource {
 	public void setDataType(DataType dataType) {
 		this.dataType = dataType;
 	}
-	
+
 	public void setMinCount(BigInteger minCount) {
 		this.minCount = minCount;
 	}
@@ -463,15 +476,15 @@ public final class Property extends AbstractResource {
 	public void setMaxCount(BigInteger maxCount) {
 		this.maxCount = maxCount;
 	}
-	
+
 	public void setDescription(String description) {
 		this.description = description;
 	}
-	
+
 	public void setMessage(String message) {
 		this.message = message;
 	}
-	
+
 	@Override
 	public String toString() {
 		return "Property [predicate=" + predicate + ", classType=" + classType + ", dataType=" + dataType

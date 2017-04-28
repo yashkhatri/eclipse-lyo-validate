@@ -4,6 +4,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.math.BigInteger;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.text.ParseException;
 import java.util.Date;
 import java.util.HashSet;
 
@@ -157,19 +158,19 @@ public class AnOslcResource extends AbstractResource {
 	}
 
 	public Result validate() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException,
-	DatatypeConfigurationException, OslcCoreApplicationException, URISyntaxException {
+	DatatypeConfigurationException, OslcCoreApplicationException, URISyntaxException, ParseException {
 		ShaclShape shaclShape = ShaclShapeFactory.createShaclShape(AnOslcResource.class);
 		return new ValidatorImpl().validate(this, shaclShape);
 	}
 
-	public ShaclShape getShaclShape() throws OslcCoreApplicationException, URISyntaxException {
+	public ShaclShape getShaclShape() throws OslcCoreApplicationException, URISyntaxException, ParseException {
 		if(shaclShape == null) 
 			return createShaclShape();
 		else
 			return shaclShape;
 	}
 
-	private ShaclShape createShaclShape() throws OslcCoreApplicationException, URISyntaxException {
+	private ShaclShape createShaclShape() throws OslcCoreApplicationException, URISyntaxException, ParseException {
 		shaclShape = ShaclShapeFactory.createShaclShape(AnOslcResource.class);
 		return shaclShape;
 	}
