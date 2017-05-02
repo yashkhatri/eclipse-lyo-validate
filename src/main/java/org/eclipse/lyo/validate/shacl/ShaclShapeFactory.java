@@ -181,7 +181,7 @@ public final class ShaclShapeFactory extends ResourceShapeFactory{
 		return shaclShape;
 	}
 
-	@SuppressWarnings("rawtypes") // supress warning when casting Arrays.asList() to a Collection
+	@SuppressWarnings("rawtypes") // Suppress warning when casting Arrays.asList() to a Collection
 	private static Property createProperty( final Class<?> resourceClass, final Method method, final OslcPropertyDefinition propertyDefinitionAnnotation, final Set<Class<?>> verifiedClasses) throws OslcCoreApplicationException, URISyntaxException, ParseException {
 		final String name;
 
