@@ -25,6 +25,7 @@ import org.eclipse.lyo.oslc4j.core.annotation.OslcName;
 import org.eclipse.lyo.oslc4j.core.annotation.OslcNamespace;
 import org.eclipse.lyo.oslc4j.core.annotation.OslcOccurs;
 import org.eclipse.lyo.oslc4j.core.annotation.OslcPropertyDefinition;
+import org.eclipse.lyo.oslc4j.core.annotation.OslcRange;
 import org.eclipse.lyo.oslc4j.core.annotation.OslcResourceShape;
 import org.eclipse.lyo.oslc4j.core.annotation.OslcValueShape;
 import org.eclipse.lyo.oslc4j.core.annotation.OslcValueType;
@@ -45,6 +46,7 @@ import org.eclipse.lyo.validate.shacl.annotations.RdfsLabel;
 import org.eclipse.lyo.validate.shacl.annotations.ShaclClassType;
 import org.eclipse.lyo.validate.shacl.annotations.ShaclClosed;
 import org.eclipse.lyo.validate.shacl.annotations.ShaclDataType;
+import org.eclipse.lyo.validate.shacl.annotations.ShaclDescription;
 import org.eclipse.lyo.validate.shacl.annotations.ShaclDisjoint;
 import org.eclipse.lyo.validate.shacl.annotations.ShaclEquals;
 import org.eclipse.lyo.validate.shacl.annotations.ShaclGroup;
@@ -92,9 +94,6 @@ public final class ShaclShapeFactory extends ResourceShapeFactory{
 	private static final int METHOD_NAME_START_GET_LENGTH = METHOD_NAME_START_GET.length();
 	private static final int METHOD_NAME_START_IS_LENGTH  = METHOD_NAME_START_IS.length();
 
-	private static boolean readShaclAnnotations = false;
-
-
 	private ShaclShapeFactory() {
 		super();
 	}
@@ -103,7 +102,7 @@ public final class ShaclShapeFactory extends ResourceShapeFactory{
 			throws OslcCoreApplicationException, URISyntaxException, ParseException {
 		final HashSet<Class<?>> verifiedClasses = new HashSet<Class<?>>();
 		verifiedClasses.add(resourceClass);
-
+		
 		return createShaclShape(resourceClass, verifiedClasses);
 	}
 
@@ -129,14 +128,14 @@ public final class ShaclShapeFactory extends ResourceShapeFactory{
 		createProperties(resourceClass, verifiedClasses, shaclShape, propertyDefinitions, true);
 
 		//If shacl annotations are available. No need to populate property instance form oslc annotations. 
-		if(!readShaclAnnotations) {
+		if(!shaclShape.isReadShaclAnnotations()) {
 			shaclShape.setShaclProperties(null);
 			propertyDefinitions.clear();
 			createProperties(resourceClass, verifiedClasses, shaclShape, propertyDefinitions, false);
 		}
 
 		//resetting it to false again.
-		readShaclAnnotations = false;
+		shaclShape.setReadShaclAnnotations(false);
 		return shaclShape;
 	}
 
@@ -242,7 +241,7 @@ public final class ShaclShapeFactory extends ResourceShapeFactory{
 						propertyDefinitions.add(propertyDefinition);
 
 						if(chooseShacl) {
-							final Property property = createPropertiesFromShaclAnnotations(resourceClass, method, propertyDefinitionAnnotation, verifiedClasses);
+							final Property property = createPropertiesFromShaclAnnotations(resourceClass, method, propertyDefinitionAnnotation, verifiedClasses, shaclShape);
 							shaclShape.addProperty(property);
 						} else {
 							final Property property = 	createPropertiesFromOslcAnnotations(resourceClass, method, propertyDefinitionAnnotation, verifiedClasses);
@@ -377,7 +376,6 @@ public final class ShaclShapeFactory extends ResourceShapeFactory{
 				}
 
 				property.setIn(object);
-				readShaclAnnotations = true;
 			}
 
 			final OslcAllowedValues oslcAllowedValues = InheritedMethodAnnotationHelper.getAnnotation(method, OslcAllowedValues.class);
@@ -410,7 +408,6 @@ public final class ShaclShapeFactory extends ResourceShapeFactory{
 					object =  oslcAllowedValues.value();
 
 				property.addIn(object);
-				readShaclAnnotations = true;
 			}
 
 
@@ -463,10 +460,10 @@ public final class ShaclShapeFactory extends ResourceShapeFactory{
 			property.setNode(new URI(oslcValueShape.value()));
 		}
 
-		//		final OslcRange oslcRange = InheritedMethodAnnotationHelper.getAnnotation(method, OslcRange.class);
-		//		if (oslcRange != null) {
-		//			property.setHasValue(new URI(oslcRange.value()));   //have multiple values check this..
-		//		}
+				final OslcRange oslcRange = InheritedMethodAnnotationHelper.getAnnotation(method, OslcRange.class);
+				if (oslcRange != null) {
+					property.setClassType(new URI(oslcRange.value()[0]));   //have multiple values check this..
+				}
 
 		//Other Constraint Components
 
@@ -486,7 +483,7 @@ public final class ShaclShapeFactory extends ResourceShapeFactory{
 	 * @throws ParseException 
 	 */
 	private static Property createPropertiesFromShaclAnnotations(final Class<?> resourceClass, final Method method,
-			final OslcPropertyDefinition propertyDefinitionAnnotation , final Set<Class<?>> verifiedClasses)
+			final OslcPropertyDefinition propertyDefinitionAnnotation , final Set<Class<?>> verifiedClasses, ShaclShape shaclShape)
 					throws URISyntaxException, OslcCoreApplicationException, ParseException {
 
 
@@ -502,7 +499,7 @@ public final class ShaclShapeFactory extends ResourceShapeFactory{
 		if (dataTypeAnnotation != null) {
 			dataType = dataTypeAnnotation.value();
 			property.setDataType(dataType);
-			readShaclAnnotations = true;
+			shaclShape.setReadShaclAnnotations(true);
 
 			//Other Constraint Components
 			final ShaclIn inAnnotation = InheritedMethodAnnotationHelper.getAnnotation(method, ShaclIn.class);
@@ -537,27 +534,31 @@ public final class ShaclShapeFactory extends ResourceShapeFactory{
 					}
 				}
 				property.setIn(object);
-				readShaclAnnotations = true;
+				shaclShape.setReadShaclAnnotations(true);
 			}
 		}
 
+		final ShaclDescription shaclDescription = InheritedMethodAnnotationHelper.getAnnotation(method, ShaclDescription.class);
+		if (shaclDescription != null) {
+			property.setDescription(shaclDescription.value());
+		}
+		
 		final ShaclDataType dataTypeAnotation  = InheritedMethodAnnotationHelper.getAnnotation(method, ShaclDataType.class);
 		if(dataTypeAnotation!=null) {
 			property.setDataType(dataTypeAnotation.value());
-			readShaclAnnotations = true;
-		}
+			shaclShape.setReadShaclAnnotations(true);		}
 
 		//Cardinality Constraint Components Start
 		final ShaclMaxCount maxCountAnnotation = InheritedMethodAnnotationHelper.getAnnotation(method, ShaclMaxCount.class);
 		if (maxCountAnnotation != null) {
 			property.setMaxCount(new BigInteger(String.valueOf(maxCountAnnotation.value())));
-			readShaclAnnotations = true;
+			shaclShape.setReadShaclAnnotations(true);
 		}
 
 		final ShaclMinCount minCountAnnotation = InheritedMethodAnnotationHelper.getAnnotation(method, ShaclMinCount.class);
 		if (minCountAnnotation != null) {
 			property.setMinCount(new BigInteger(String.valueOf(minCountAnnotation.value())));
-			readShaclAnnotations = true;
+			shaclShape.setReadShaclAnnotations(true);
 		}
 		//Cardinality Constraint Components End
 
@@ -565,25 +566,25 @@ public final class ShaclShapeFactory extends ResourceShapeFactory{
 		final ShaclMinExclusive minExclusiveAnnotation = InheritedMethodAnnotationHelper.getAnnotation(method, ShaclMinExclusive.class);
 		if (minExclusiveAnnotation != null) {
 			property.setMinExclusive(new BigInteger(String.valueOf(minExclusiveAnnotation.value())));
-			readShaclAnnotations = true;
+			shaclShape.setReadShaclAnnotations(true);
 		}
 
 		final ShaclMaxExclusive maxExclusiveAnnotation = InheritedMethodAnnotationHelper.getAnnotation(method, ShaclMaxExclusive.class);
 		if (maxExclusiveAnnotation != null) {
 			property.setMaxExclusive(new BigInteger(String.valueOf(maxExclusiveAnnotation.value())));
-			readShaclAnnotations = true;
+			shaclShape.setReadShaclAnnotations(true);
 		}
 
 		final ShaclMinInclusive minInclusiveAnnotation = InheritedMethodAnnotationHelper.getAnnotation(method, ShaclMinInclusive.class);
 		if (minInclusiveAnnotation != null) {
 			property.setMinInclusive(new BigInteger(String.valueOf(minInclusiveAnnotation.value())));
-			readShaclAnnotations = true;
+			shaclShape.setReadShaclAnnotations(true);
 		}
 
 		final ShaclMaxInclusive maxInclusiveAnnotation = InheritedMethodAnnotationHelper.getAnnotation(method, ShaclMaxInclusive.class);
 		if (maxInclusiveAnnotation != null) {
 			property.setMaxInclusive(new BigInteger(String.valueOf(maxInclusiveAnnotation.value())));
-			readShaclAnnotations = true;
+			shaclShape.setReadShaclAnnotations(true);
 		}
 		//Value Range Constraint Components End
 
@@ -591,20 +592,20 @@ public final class ShaclShapeFactory extends ResourceShapeFactory{
 		final ShaclClassType shaclClass = InheritedMethodAnnotationHelper.getAnnotation(method, ShaclClassType.class);
 		if (shaclClass != null) {
 			property.setClassType(new URI(shaclClass.value()));
-			readShaclAnnotations = true;
+			shaclShape.setReadShaclAnnotations(true);
 		}
 
 		final ShaclNode shaclNode = InheritedMethodAnnotationHelper.getAnnotation(method, ShaclNode.class);
 		if (shaclNode != null) {
 			property.setNode(new URI(shaclNode.value()));
-			readShaclAnnotations = true;
+			shaclShape.setReadShaclAnnotations(true);
 		}
 
 		//Non Validating Constraints Start
 		final ShaclName shaclName = InheritedMethodAnnotationHelper.getAnnotation(method, ShaclName.class);
 		if (shaclName != null) {
 			property.setName(shaclName.value());
-			readShaclAnnotations = true;
+			shaclShape.setReadShaclAnnotations(true);
 		}
 
 		final OslcDescription oslcDescription = InheritedMethodAnnotationHelper.getAnnotation(method, OslcDescription.class);
@@ -615,13 +616,13 @@ public final class ShaclShapeFactory extends ResourceShapeFactory{
 		final ShaclGroup shaclGroup = InheritedMethodAnnotationHelper.getAnnotation(method, ShaclGroup.class);
 		if (shaclGroup != null) {
 			property.setGroup(new URI(shaclGroup.value()));
-			readShaclAnnotations = true;
+			shaclShape.setReadShaclAnnotations(true);
 		}
 
 		final ShaclOrder shaclOrder = InheritedMethodAnnotationHelper.getAnnotation(method, ShaclOrder.class);
 		if (shaclOrder != null) {
 			property.setOrder(new BigDecimal(shaclOrder.value()));
-			readShaclAnnotations = true;
+			shaclShape.setReadShaclAnnotations(true);
 		}
 		//Non Validating Constraints End
 
@@ -629,31 +630,31 @@ public final class ShaclShapeFactory extends ResourceShapeFactory{
 		final ShaclPattern shaclPattern = InheritedMethodAnnotationHelper.getAnnotation(method, ShaclPattern.class);
 		if (shaclPattern != null) {
 			property.setPattern(shaclPattern.value());
-			readShaclAnnotations = true;
+			shaclShape.setReadShaclAnnotations(true);
 		}
 
 		final ShaclUniqueLang shaclUniqueLang = InheritedMethodAnnotationHelper.getAnnotation(method, ShaclUniqueLang.class);
 		if (shaclUniqueLang != null) {
 			property.setUniqueLang(shaclUniqueLang.value());
-			readShaclAnnotations = true;
+			shaclShape.setReadShaclAnnotations(true);
 		}
 
 		final ShaclLanguageIn shaclLanguageIn = InheritedMethodAnnotationHelper.getAnnotation(method, ShaclLanguageIn.class);
 		if (shaclLanguageIn != null) {
 			property.setLanguageIn(shaclLanguageIn.value());
-			readShaclAnnotations = true;
+			shaclShape.setReadShaclAnnotations(true);
 		}
 
 		final ShaclMinLength shaclMinLength = InheritedMethodAnnotationHelper.getAnnotation(method, ShaclMinLength.class);
 		if (shaclMinLength != null) {
 			property.setMinLength(new BigInteger(String.valueOf(shaclMinLength.value())));
-			readShaclAnnotations = true;
+			shaclShape.setReadShaclAnnotations(true);
 		}
 
 		final ShaclMaxLength shaclMaxLength = InheritedMethodAnnotationHelper.getAnnotation(method, ShaclMaxLength.class);
 		if (shaclMaxLength != null) {
 			property.setMaxLength(new BigInteger(String.valueOf(shaclMaxLength.value())));
-			readShaclAnnotations = true;
+			shaclShape.setReadShaclAnnotations(true);
 		}
 		//String Based Constraints End
 
@@ -661,32 +662,32 @@ public final class ShaclShapeFactory extends ResourceShapeFactory{
 		final ShaclHasValue shaclHasValue = InheritedMethodAnnotationHelper.getAnnotation(method, ShaclHasValue.class);
 		if (shaclHasValue != null) {
 			property.setHasValue(new URI(shaclHasValue.value()));
-			readShaclAnnotations = true;
+			shaclShape.setReadShaclAnnotations(true);
 		}
 
 		//Property Pair Constraint Components Start
 		final ShaclEquals shaclEquals = InheritedMethodAnnotationHelper.getAnnotation(method, ShaclEquals.class);
 		if (shaclEquals != null) {
 			property.setEquals(new URI(shaclEquals.value()));
-			readShaclAnnotations = true;
+			shaclShape.setReadShaclAnnotations(true);
 		}
 
 		final ShaclDisjoint shaclDisjoint = InheritedMethodAnnotationHelper.getAnnotation(method, ShaclDisjoint.class);
 		if (shaclDisjoint != null) {
 			property.setDisjoint(new URI(shaclDisjoint.value()));
-			readShaclAnnotations = true;
+			shaclShape.setReadShaclAnnotations(true);
 		}
 
 		final ShaclLessThan shaclLessThan = InheritedMethodAnnotationHelper.getAnnotation(method, ShaclLessThan.class);
 		if (shaclLessThan != null) {
 			property.setLessThan(new URI(shaclLessThan.value()));
-			readShaclAnnotations = true;
+			shaclShape.setReadShaclAnnotations(true);
 		}
 
 		final ShaclLessThanOrEquals shaclLessThanOrEquals = InheritedMethodAnnotationHelper.getAnnotation(method, ShaclLessThanOrEquals.class);
 		if (shaclLessThanOrEquals != null) {
 			property.setLessThanOrEquals(new URI(shaclLessThanOrEquals.value()));
-			readShaclAnnotations = true;
+			shaclShape.setReadShaclAnnotations(true);
 		}
 		return property;
 	}
