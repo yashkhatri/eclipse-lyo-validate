@@ -35,7 +35,7 @@ public final class ShaclShape extends AbstractResource {
 	private URI targetObjectsOf;
 
 	//Core Constraints
-	private final TreeMap<URI, Property> properties = new TreeMap<URI, Property>();
+	private final TreeMap<URI, ShaclProperty> properties = new TreeMap<URI, ShaclProperty>();
 	
 	private URI isDefinedBy;
 	private String label;
@@ -92,7 +92,7 @@ public final class ShaclShape extends AbstractResource {
 	}
 	
 	
-	public void addProperty(final Property property) {
+	public void addProperty(final ShaclProperty property) {
 		this.properties.put(property.getPredicate(), property);
 	}
 	
@@ -100,7 +100,7 @@ public final class ShaclShape extends AbstractResource {
 		this.properties.remove(predicate);
 	}
 	
-	public Property getShaclProperty(URI definition) {
+	public ShaclProperty getShaclProperty(URI definition) {
 		return properties.get(definition);
 	}
 
@@ -111,8 +111,8 @@ public final class ShaclShape extends AbstractResource {
 	@OslcReadOnly
 	@OslcTitle("Properties")
 	@OslcValueType(ValueType.LocalResource)
-	public Property[] getShaclProperties() {
-		return properties.values().toArray(new Property[properties.size()]);
+	public ShaclProperty[] getShaclProperties() {
+		return properties.values().toArray(new ShaclProperty[properties.size()]);
 	}
 
 	@OslcDescription("Specified Is Defined By")
@@ -206,10 +206,10 @@ public final class ShaclShape extends AbstractResource {
 		this.label = label;
 	}
 
-	public void setShaclProperties(final Property[] properties) {
+	public void setShaclProperties(final ShaclProperty[] properties) {
 		this.properties.clear();
 		if (properties != null) {
-			for(Property prop :properties) {
+			for(ShaclProperty prop :properties) {
 				this.properties.put(prop.getPredicate(), prop);
 			}
 		}

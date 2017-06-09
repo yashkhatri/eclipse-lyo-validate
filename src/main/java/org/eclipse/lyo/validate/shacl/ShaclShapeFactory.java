@@ -241,10 +241,10 @@ public final class ShaclShapeFactory extends ResourceShapeFactory{
 						propertyDefinitions.add(propertyDefinition);
 
 						if(chooseShacl) {
-							final Property property = createPropertiesFromShaclAnnotations(resourceClass, method, propertyDefinitionAnnotation, verifiedClasses, shaclShape);
+							final ShaclProperty property = createPropertiesFromShaclAnnotations(resourceClass, method, propertyDefinitionAnnotation, verifiedClasses, shaclShape);
 							shaclShape.addProperty(property);
 						} else {
-							final Property property = 	createPropertiesFromOslcAnnotations(resourceClass, method, propertyDefinitionAnnotation, verifiedClasses);
+							final ShaclProperty property = 	createPropertiesFromOslcAnnotations(resourceClass, method, propertyDefinitionAnnotation, verifiedClasses);
 							shaclShape.addProperty(property);
 						} 
 
@@ -327,11 +327,11 @@ public final class ShaclShapeFactory extends ResourceShapeFactory{
 	 * This method reads the OSLC annotations for populating property instances.
 	 * @throws ParseException 
 	 */
-	private static Property createPropertiesFromOslcAnnotations(Class<?> resourceClass, Method method, OslcPropertyDefinition propertyDefinitionAnnotation, Set<Class<?>> verifiedClasses) throws URISyntaxException, OslcCoreApplicationException, ParseException {
+	private static ShaclProperty createPropertiesFromOslcAnnotations(Class<?> resourceClass, Method method, OslcPropertyDefinition propertyDefinitionAnnotation, Set<Class<?>> verifiedClasses) throws URISyntaxException, OslcCoreApplicationException, ParseException {
 
 		Class<?> componentType = 	createPropertyCommon(resourceClass, method, propertyDefinitionAnnotation, verifiedClasses);
 
-		final Property property = new Property();
+		final ShaclProperty property = new ShaclProperty();
 		property.setPredicate(new URI(propertyDefinitionAnnotation.value()));
 
 
@@ -482,14 +482,14 @@ public final class ShaclShapeFactory extends ResourceShapeFactory{
 	 * This method reads shacl annotations for populating property instances. 
 	 * @throws ParseException 
 	 */
-	private static Property createPropertiesFromShaclAnnotations(final Class<?> resourceClass, final Method method,
+	private static ShaclProperty createPropertiesFromShaclAnnotations(final Class<?> resourceClass, final Method method,
 			final OslcPropertyDefinition propertyDefinitionAnnotation , final Set<Class<?>> verifiedClasses, ShaclShape shaclShape)
 					throws URISyntaxException, OslcCoreApplicationException, ParseException {
 
 
 		Class<?> componentType = 	createPropertyCommon(resourceClass, method, propertyDefinitionAnnotation, verifiedClasses);
 
-		final Property property = new Property();
+		final ShaclProperty property = new ShaclProperty();
 		property.setPredicate(new URI(propertyDefinitionAnnotation.value()));
 
 
