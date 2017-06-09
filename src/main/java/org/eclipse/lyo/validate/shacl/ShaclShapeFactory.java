@@ -35,6 +35,7 @@ import org.eclipse.lyo.validate.shacl.annotations.RdfsLabel;
 import org.eclipse.lyo.validate.shacl.annotations.ShaclClassType;
 import org.eclipse.lyo.validate.shacl.annotations.ShaclClosed;
 import org.eclipse.lyo.validate.shacl.annotations.ShaclDataType;
+import org.eclipse.lyo.validate.shacl.annotations.ShaclDescription;
 import org.eclipse.lyo.validate.shacl.annotations.ShaclDisjoint;
 import org.eclipse.lyo.validate.shacl.annotations.ShaclEquals;
 import org.eclipse.lyo.validate.shacl.annotations.ShaclGroup;
@@ -169,7 +170,7 @@ public final class ShaclShapeFactory extends ResourceShapeFactory{
 
 						propertyDefinitions.add(propertyDefinition);
 
-						final Property property = createProperty(resourceClass, method, propertyDefinitionAnnotation, verifiedClasses);
+						final ShaclProperty property = createProperty(resourceClass, method, propertyDefinitionAnnotation, verifiedClasses);
 						shaclShape.addProperty(property);
 
 						validateSetMethodExists(resourceClass, method);
@@ -182,7 +183,7 @@ public final class ShaclShapeFactory extends ResourceShapeFactory{
 	}
 
 	@SuppressWarnings("rawtypes") // Suppress warning when casting Arrays.asList() to a Collection
-	private static Property createProperty( final Class<?> resourceClass, final Method method, final OslcPropertyDefinition propertyDefinitionAnnotation, final Set<Class<?>> verifiedClasses) throws OslcCoreApplicationException, URISyntaxException, ParseException {
+	private static ShaclProperty createProperty( final Class<?> resourceClass, final Method method, final OslcPropertyDefinition propertyDefinitionAnnotation, final Set<Class<?>> verifiedClasses) throws OslcCoreApplicationException, URISyntaxException, ParseException {
 		final String name;
 
 		final OslcName nameAnnotation = InheritedMethodAnnotationHelper.getAnnotation(method, OslcName.class);
@@ -223,7 +224,7 @@ public final class ShaclShapeFactory extends ResourceShapeFactory{
 		}
 
 
-		final Property property = new Property();
+		final ShaclProperty property = new ShaclProperty();
 		property.setPredicate(new URI(propertyDefinition));
 
 
@@ -329,6 +330,11 @@ public final class ShaclShapeFactory extends ResourceShapeFactory{
 		final OslcDescription oslcDescription = InheritedMethodAnnotationHelper.getAnnotation(method, OslcDescription.class);
 		if (oslcDescription != null) {
 			property.setDescription(oslcDescription.value());
+		} else {
+			final ShaclDescription shaclDescription = InheritedMethodAnnotationHelper.getAnnotation(method, ShaclDescription.class);
+			if (shaclDescription != null) {
+				property.setDescription(shaclDescription.value());
+			}
 		}
 
 		final ShaclGroup shaclGroup = InheritedMethodAnnotationHelper.getAnnotation(method, ShaclGroup.class);
