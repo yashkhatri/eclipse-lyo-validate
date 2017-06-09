@@ -542,7 +542,7 @@ public final class ShaclShapeFactory extends ResourceShapeFactory{
 		if (shaclDescription != null) {
 			property.setDescription(shaclDescription.value());
 		}
-		
+				
 		final ShaclDataType dataTypeAnotation  = InheritedMethodAnnotationHelper.getAnnotation(method, ShaclDataType.class);
 		if(dataTypeAnotation!=null) {
 			property.setDataType(dataTypeAnotation.value());
