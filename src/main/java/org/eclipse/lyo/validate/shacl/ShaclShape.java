@@ -42,6 +42,8 @@ public final class ShaclShape extends AbstractResource {
 	private URI type;
 	private boolean isClosed;
 	private List<URI> ignoredProperties;
+	
+	private boolean readShaclAnnotations = false;
 
 
 	public ShaclShape() {
@@ -152,6 +154,14 @@ public final class ShaclShape extends AbstractResource {
 		return ignoredProperties;
 	}
 	
+	public boolean isReadShaclAnnotations() {
+		return readShaclAnnotations;
+	}
+
+	public void setReadShaclAnnotations(boolean useShaclAnnotations) {
+		this.readShaclAnnotations = useShaclAnnotations;
+	}
+
 	public void setType(URI type) {
 		this.type = type;
 	}
