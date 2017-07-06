@@ -126,7 +126,7 @@ public BigInteger getIntegerProperty3() {
 	@ShaclDataType(DataType.Integer)
 	@ShaclMaxLength(2)
 	@ShaclMinLength(1)
-	@ShaclIn(value = { "5", "7", "9", "12" })
+	@ShaclIn(dataType = DataType.Integer, value = { "5", "7", "9", "12" })
 	public BigInteger getAnotherIntegerProperty() {
 		return anotherIntegerProperty;
 	}

@@ -494,50 +494,49 @@ public final class ShaclShapeFactory extends ResourceShapeFactory{
 
 
 		//Setting Value Type
-		DataType dataType = null;
 		final ShaclDataType dataTypeAnnotation = InheritedMethodAnnotationHelper.getAnnotation(method, ShaclDataType.class);
 		if (dataTypeAnnotation != null) {
-			dataType = dataTypeAnnotation.value();
-			property.setDataType(dataType);
+			property.setDataType(dataTypeAnnotation.value());
 			shaclShape.setReadShaclAnnotations(true);
-
-			//Other Constraint Components
-			final ShaclIn inAnnotation = InheritedMethodAnnotationHelper.getAnnotation(method, ShaclIn.class);
-			if (inAnnotation != null) {
-				
-				DateFormat df = new SimpleDateFormat("MM/dd/yyyy");
-				SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
-				DecimalFormat decimalFormat = new DecimalFormat("0.00");
-				decimalFormat.setMaximumFractionDigits(2);
-				
-				
-				Object[] object = new Object[inAnnotation.value().length];
-				for(int i = 0;i < inAnnotation.value().length; i++) {
-					if(dataType == DataType.Integer) {
-						object[i] =  new BigInteger(inAnnotation.value()[i]);
-					} else if (dataType == DataType.String){
-						object[i] =  inAnnotation.value()[i];
-					} else if(dataType == DataType.URI) {
-						object[i] =  new URI(inAnnotation.value()[i]);
-					} else if(dataType == DataType.Boolean) {
-						object[i] =  Boolean.parseBoolean(inAnnotation.value()[i]);
-					} else if(dataType == DataType.Date) {
-						object[i] =  df.parse(inAnnotation.value()[i]);
-					} else if(dataType == DataType.DateTime) {
-						object[i] =  formatter.parse(inAnnotation.value().toString());
-					} else if(dataType == DataType.Double) {
-						object[i] =  Double.parseDouble(inAnnotation.value()[i]);
-					} else if(dataType == DataType.Float) {
-						object[i] =  Float.parseFloat(inAnnotation.value()[i]);
-					} else if(dataType == DataType.Decimal) {
-						object[i] =  Float.parseFloat(inAnnotation.value()[i]);
-					}
-				}
-				property.setIn(object);
-				shaclShape.setReadShaclAnnotations(true);
-			}
 		}
 
+		//Other Constraint Components
+		final ShaclIn inAnnotation = InheritedMethodAnnotationHelper.getAnnotation(method, ShaclIn.class);
+		if (inAnnotation != null) {
+			
+			DateFormat df = new SimpleDateFormat("MM/dd/yyyy");
+			SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+			DecimalFormat decimalFormat = new DecimalFormat("0.00");
+			decimalFormat.setMaximumFractionDigits(2);
+			
+			DataType dataType = inAnnotation.dataType();
+			
+			Object[] object = new Object[inAnnotation.value().length];
+			for(int i = 0;i < inAnnotation.value().length; i++) {
+				if(dataType == DataType.Integer) {
+					object[i] =  new BigInteger(inAnnotation.value()[i]);
+				} else if (dataType == DataType.String){
+					object[i] =  inAnnotation.value()[i];
+				} else if(dataType == DataType.URI) {
+					object[i] =  new URI(inAnnotation.value()[i]);
+				} else if(dataType == DataType.Boolean) {
+					object[i] =  Boolean.parseBoolean(inAnnotation.value()[i]);
+				} else if(dataType == DataType.Date) {
+					object[i] =  df.parse(inAnnotation.value()[i]);
+				} else if(dataType == DataType.DateTime) {
+					object[i] =  formatter.parse(inAnnotation.value().toString());
+				} else if(dataType == DataType.Double) {
+					object[i] =  Double.parseDouble(inAnnotation.value()[i]);
+				} else if(dataType == DataType.Float) {
+					object[i] =  Float.parseFloat(inAnnotation.value()[i]);
+				} else if(dataType == DataType.Decimal) {
+					object[i] =  Float.parseFloat(inAnnotation.value()[i]);
+				}
+			}
+			property.setIn(object);
+			shaclShape.setReadShaclAnnotations(true);
+		}
+		
 		final ShaclDescription shaclDescription = InheritedMethodAnnotationHelper.getAnnotation(method, ShaclDescription.class);
 		if (shaclDescription != null) {
 			property.setDescription(shaclDescription.value());
