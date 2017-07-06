@@ -28,13 +28,12 @@ import org.eclipse.lyo.oslc4j.core.model.Occurs;
 import org.eclipse.lyo.oslc4j.core.model.OslcConstants;
 import org.eclipse.lyo.oslc4j.core.model.ValueType;
 import org.eclipse.lyo.validate.constants.DataType;
-import org.eclipse.lyo.validate.shacl.annotations.ShaclDataType;
 
 
 @OslcNamespace(ShaclConstants.SHACL_CORE_NAMESPACE)
 @OslcName("property")
 @OslcResourceShape(title = "SHACL Property Resource Shape", describes = ShaclConstants.TYPE_PROPERTY)
-public final class Property extends AbstractResource {
+public final class ShaclProperty extends AbstractResource {
 
 	private URI predicate;
 
@@ -86,11 +85,11 @@ public final class Property extends AbstractResource {
 	private URI hasValue;
 
 
-	public Property() {
+	public ShaclProperty() {
 		super();
 	}
 
-	public Property(final URI predicate,
+	public ShaclProperty(final URI predicate,
 			final DataType dataType, final BigInteger minCount, final BigInteger maxCount) {
 		this();
 

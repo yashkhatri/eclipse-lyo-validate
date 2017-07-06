@@ -14,9 +14,9 @@ import javax.xml.datatype.DatatypeConfigurationException;
 
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
-import org.apache.jena.rdf.model.NodeIterator;
 import org.apache.jena.rdf.model.ResIterator;
 import org.apache.jena.rdf.model.Resource;
+import org.apache.jena.shared.PropertyNotFoundException;
 import org.apache.log4j.Logger;
 import org.eclipse.lyo.oslc4j.core.exception.OslcCoreApplicationException;
 import org.eclipse.lyo.oslc4j.core.exception.OslcCoreRelativeURIException;
@@ -65,18 +65,9 @@ public class ValidationHelperImpl implements ValidationHelper {
 	@Override
 	public ValidationResultModel validate(Model dataModel, Model shapeModel) throws IllegalAccessException,
 	InvocationTargetException, DatatypeConfigurationException, OslcCoreApplicationException {
-		return getValidationResults(dataModel, shapeModel, null, null, null);
+		return getValidationResults(dataModel, shapeModel, null, null);
 	}
 
-	@Override
-	public ValidationResultModel validate(AbstractResource resource, Class<? extends AbstractResource> clazz)
-			throws OslcCoreApplicationException, URISyntaxException, ParseException, IllegalAccessException,
-			IllegalArgumentException, InvocationTargetException, DatatypeConfigurationException {
-		ShaclShape shaclShape = createShaclShape(clazz);
-		Model shapeModel = JenaModelHelper.createJenaModel(new Object[] { shaclShape });
-		Model dataModel = JenaModelHelper.createJenaModel(new Object[] { resource });
-		return getValidationResults(dataModel, shapeModel, null, null, null);
-	}
 
 	@Override
 	public ValidationResultModel validate(Model dataModel, Class<? extends AbstractResource> clazz)
@@ -84,21 +75,7 @@ public class ValidationHelperImpl implements ValidationHelper {
 			DatatypeConfigurationException, OslcCoreApplicationException, URISyntaxException, ParseException {
 		ShaclShape shaclShape = createShaclShape(clazz);
 		Model shapeModel = JenaModelHelper.createJenaModel(new Object[] { shaclShape });
-		return getValidationResults(dataModel, shapeModel, null, null, null);
-	}
-
-	@Override
-	public ValidationResultModel validateType(Model dataModel, String type)
-			throws IllegalAccessException, InvocationTargetException, DatatypeConfigurationException,
-			OslcCoreApplicationException {
-		return getValidationResults(dataModel, null, null, null, type);
-	}
-
-	@Override
-	public ValidationResultModel validateURI(Model dataModel, String uriPattern)
-			throws IllegalAccessException, InvocationTargetException, DatatypeConfigurationException,
-			OslcCoreApplicationException {
-		return getValidationResults(dataModel, null, null, uriPattern, null);
+		return getValidationResults(dataModel, shapeModel, null, null);
 	}
 
 	@Override
@@ -107,9 +84,26 @@ public class ValidationHelperImpl implements ValidationHelper {
 			InvocationTargetException, DatatypeConfigurationException {
 		ShaclShape genericShaclShape = createShaclShape(clazz);
 		genericShaclShape.setTargetClass(null);
-		return getValidationResults(dataModel, null, genericShaclShape, null, null);
+		return getValidationResults(dataModel, null, genericShaclShape, null);
 	}
 
+	@Override
+	public ValidationResultModel validateURI(Model dataModel, String uriPattern)
+			throws IllegalAccessException, InvocationTargetException, DatatypeConfigurationException,
+			OslcCoreApplicationException {
+		return getValidationResults(dataModel, null, new ShaclShape(), uriPattern);
+	}
+	
+	@Override
+	public ValidationResultModel validate(AbstractResource resource, Class<? extends AbstractResource> clazz)
+			throws OslcCoreApplicationException, URISyntaxException, ParseException, IllegalAccessException,
+			IllegalArgumentException, InvocationTargetException, DatatypeConfigurationException {
+		ShaclShape shaclShape = createShaclShape(clazz);
+		Model shapeModel = JenaModelHelper.createJenaModel(new Object[] { shaclShape });
+		Model dataModel = JenaModelHelper.createJenaModel(new Object[] { resource });
+		return getValidationResults(dataModel, shapeModel, null, null);
+	}
+	
 	@Override
 	public ShaclShape createShaclShape(Class<? extends AbstractResource> resourceClass)
 			throws OslcCoreApplicationException, URISyntaxException, ParseException {
@@ -117,7 +111,7 @@ public class ValidationHelperImpl implements ValidationHelper {
 	}
 
 	private ValidationResultModel getValidationResults(Model dataModel, Model shapeModel,
-			ShaclShape genericShaclShape, String uriPattern, String type) throws IllegalAccessException,
+			ShaclShape genericShaclShape, String uriPattern) throws IllegalAccessException,
 	InvocationTargetException, DatatypeConfigurationException, OslcCoreApplicationException {
 
 		ResourceModel resourceModel;
@@ -132,9 +126,10 @@ public class ValidationHelperImpl implements ValidationHelper {
 			final Resource resource = iterator.next();
 			model.add(resource.listProperties());
 
-			// Setting the grpah name as the target node.
+			// Setting the graph name as the target node.
 			try {
 				if (genericShaclShape != null) {
+					//NOt validating for blank node.
 					shapeModel = setTargetNode(shapeModel, genericShaclShape, model, resource);
 				}
 			} catch (URISyntaxException | OslcCoreRelativeURIException e) {
@@ -144,8 +139,6 @@ public class ValidationHelperImpl implements ValidationHelper {
 
 			if (uriPattern!=null && !uriPattern.isEmpty()) {
 				patternValidator(model.getSeq(resource).toString(), uriPattern);
-			} else if (type != null && !type.isEmpty()) {
-				validateTypeHelper(model, type);
 			} else {
 				Result validationResult = validator.validate(model, shapeModel);
 				if (validationResult.isValid()) {
@@ -159,8 +152,8 @@ public class ValidationHelperImpl implements ValidationHelper {
 
 			model.remove(resource.listProperties());
 
-			log.info("Total Number Of Resources " + totalNumberOfResources);
 			totalNumberOfResources++;
+			log.info("Total Number Of Resources " + totalNumberOfResources);
 
 		}
 
@@ -177,13 +170,16 @@ public class ValidationHelperImpl implements ValidationHelper {
 		} else {
 			invalidCount++;
 			inValidNodes.add(resourceModel);
-			log.error("Datamodel valid");
+			log.error("Datamodel Invalid");
 		}
 	}
 
 	private static void populateResourceModel(ResourceModel resourceModel, Model model, final Resource resource) {
 		try {
 			resourceModel.setTitle(resource.getRequiredProperty(model.getProperty("http://purl.org/dc/terms/title"))
+					.getObject().toString());
+		} catch (PropertyNotFoundException e) {
+			resourceModel.setTitle(resource.getRequiredProperty(model.getProperty("http://purl.org/dc/terms#title"))
 					.getObject().toString());
 		} catch (Exception e) {
 			resourceModel.setTitle("NO TITLE EXISTS");
@@ -193,8 +189,12 @@ public class ValidationHelperImpl implements ValidationHelper {
 			resourceModel.setDescription(
 					resource.getRequiredProperty(model.getProperty("http://purl.org/dc/terms/description")).getObject()
 					.toString().replaceAll("\u0027", ""));
+		} catch (PropertyNotFoundException e) {
+			resourceModel.setDescription(
+					resource.getRequiredProperty(model.getProperty("http://purl.org/dc/terms#description")).getObject()
+					.toString().replaceAll("\u0027", ""));
 		} catch (Exception e) {
-			resourceModel.setDescription("NO DESCRIPTION EXISTS");
+			resourceModel.setDescription("No Desciption Exists");
 		}
 
 		try {
@@ -217,7 +217,8 @@ public class ValidationHelperImpl implements ValidationHelper {
 	private static Model setTargetNode(Model shapeModel, ShaclShape genericShaclShape, Model model,
 			final Resource resource) throws DatatypeConfigurationException, IllegalAccessException,
 	InvocationTargetException, OslcCoreApplicationException, URISyntaxException {
-		genericShaclShape.setTargetNode(new URI(model.getSeq(resource).toString().trim()));
+		//System.out.println(new URI(model.getSeq(resource).toString()));
+		genericShaclShape.setTargetNode(new URI(model.getSeq(resource).toString()));
 		shapeModel = JenaModelHelper.createJenaModel(new Object[] { genericShaclShape });
 		return shapeModel;
 	}
@@ -229,21 +230,12 @@ public class ValidationHelperImpl implements ValidationHelper {
 			Matcher matcher = pattern.matcher(stringToValidate);
 			if (matcher.matches())
 				isValid = true;
+			else if (stringToValidate.contains(patternString))
+				isValid = true;
 		} catch (PatternSyntaxException e) {
 			if (stringToValidate.contains(patternString))
 				isValid = true;
 		}
 
 	}
-
-	private void validateTypeHelper(Model model, String type) {
-		NodeIterator itr = model
-				.listObjectsOfProperty(model.getProperty("http://www.w3.org/1999/02/22-rdf-syntax-ns#type"));
-		while (itr.hasNext()) {
-			if (itr.next().toString().equals(type)) {
-				isValid = true;
-			}
-		}
-	}
-
 }

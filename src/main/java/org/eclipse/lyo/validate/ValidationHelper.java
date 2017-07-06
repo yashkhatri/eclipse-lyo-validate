@@ -106,30 +106,6 @@ public interface ValidationHelper {
 			InvocationTargetException, DatatypeConfigurationException;
 
 	/**
-	 * Validate type.
-	 *
-	 * @param dataModel
-	 *            the data model
-	 * @param shapeModel
-	 *            the shape model
-	 * @param type
-	 *            the type
-	 * @return the validation result model
-	 * @throws IllegalAccessException
-	 *             the illegal access exception
-	 * @throws InvocationTargetException
-	 *             the invocation target exception
-	 * @throws DatatypeConfigurationException
-	 *             the datatype configuration exception
-	 * @throws OslcCoreApplicationException
-	 *             the oslc core application exception
-	 *
-	 *             This method validates the rdf:type of the resources.
-	 */
-	ValidationResultModel validateType(Model dataModel, String type) throws IllegalAccessException,
-	InvocationTargetException, DatatypeConfigurationException, OslcCoreApplicationException; // Re-check
-
-	/**
 	 * Validate URI.
 	 *
 	 * @param dataModel
