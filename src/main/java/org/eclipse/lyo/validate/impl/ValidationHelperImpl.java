@@ -95,10 +95,10 @@ public class ValidationHelperImpl implements ValidationHelper {
 	}
 	
 	@Override
-	public ValidationResultModel validate(AbstractResource resource, Class<? extends AbstractResource> clazz)
+	public ValidationResultModel validate(AbstractResource resource)
 			throws OslcCoreApplicationException, URISyntaxException, ParseException, IllegalAccessException,
 			IllegalArgumentException, InvocationTargetException, DatatypeConfigurationException {
-		ShaclShape shaclShape = createShaclShape(clazz);
+		ShaclShape shaclShape = createShaclShape(resource.getClass());
 		Model shapeModel = JenaModelHelper.createJenaModel(new Object[] { shaclShape });
 		Model dataModel = JenaModelHelper.createJenaModel(new Object[] { resource });
 		return getValidationResults(dataModel, shapeModel, null, null);
@@ -151,9 +151,11 @@ public class ValidationHelperImpl implements ValidationHelper {
 			populateCounts(resourceModel);
 
 			model.remove(resource.listProperties());
+			isValid = false;
 
 			totalNumberOfResources++;
 			log.info("Total Number Of Resources " + totalNumberOfResources);
+			
 
 		}
 
@@ -166,45 +168,56 @@ public class ValidationHelperImpl implements ValidationHelper {
 		if (isValid) {
 			validCount++;
 			validNodes.add(resourceModel);
-			log.info("Datamodel valid, Added to the parent datamodel.");
+			log.info("Datamodel valid.");
 		} else {
 			invalidCount++;
 			inValidNodes.add(resourceModel);
-			log.error("Datamodel Invalid");
+			log.info("Datamodel Invalid");
 		}
+		log.debug("Valid Count:"+validCount);
+		log.debug("InValid Count:"+invalidCount);
 	}
 
 	private static void populateResourceModel(ResourceModel resourceModel, Model model, final Resource resource) {
 		try {
+			log.debug("setting title");
 			resourceModel.setTitle(resource.getRequiredProperty(model.getProperty("http://purl.org/dc/terms/title"))
 					.getObject().toString());
 		} catch (PropertyNotFoundException e) {
+			log.debug("setting title");
 			resourceModel.setTitle(resource.getRequiredProperty(model.getProperty("http://purl.org/dc/terms#title"))
 					.getObject().toString());
 		} catch (Exception e) {
+			log.debug("Title doesn't exist");
 			resourceModel.setTitle("NO TITLE EXISTS");
 		}
 
 		try {
+			log.debug("setting description");
 			resourceModel.setDescription(
 					resource.getRequiredProperty(model.getProperty("http://purl.org/dc/terms/description")).getObject()
 					.toString().replaceAll("\u0027", ""));
 		} catch (PropertyNotFoundException e) {
+			log.debug("setting description");
 			resourceModel.setDescription(
 					resource.getRequiredProperty(model.getProperty("http://purl.org/dc/terms#description")).getObject()
 					.toString().replaceAll("\u0027", ""));
 		} catch (Exception e) {
+			log.debug("description doesn't exist");
 			resourceModel.setDescription("No Desciption Exists");
 		}
 
 		try {
+			log.debug("setting uri");
 			resourceModel.setURI(model.getSeq(resource).toString());
 		} catch (Exception e) {
+			log.debug("uri doesn't exist");
 			resourceModel.setURI("NO URI Exists");
 		}
 	}
 
 	private ValidationResultModel populateValidationModel() {
+		log.debug("Polutaing ValidationResultModel");
 		ValidationResultModel validationResultModel = new ValidationResultModel();
 		validationResultModel.setInvalidCount(invalidCount);
 		validationResultModel.setValidCount(validCount);
@@ -218,13 +231,15 @@ public class ValidationHelperImpl implements ValidationHelper {
 			final Resource resource) throws DatatypeConfigurationException, IllegalAccessException,
 	InvocationTargetException, OslcCoreApplicationException, URISyntaxException {
 		//System.out.println(new URI(model.getSeq(resource).toString()));
+		log.debug("Setting Target Node: "+ new URI(model.getSeq(resource).toString()));
 		genericShaclShape.setTargetNode(new URI(model.getSeq(resource).toString()));
 		shapeModel = JenaModelHelper.createJenaModel(new Object[] { genericShaclShape });
 		return shapeModel;
 	}
 
 	private void patternValidator(String stringToValidate, String patternString) {
-
+		log.info("Validating Pattern: " + patternString);
+		log.debug("URI to Validate" + stringToValidate);
 		try {
 			Pattern pattern = Pattern.compile(patternString);
 			Matcher matcher = pattern.matcher(stringToValidate);

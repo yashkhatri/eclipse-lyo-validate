@@ -152,11 +152,12 @@ public interface ValidationHelper {
 	 * @throws DatatypeConfigurationException
 	 *             the datatype configuration exception
 	 * 
-	 *             This method takes AbstractResource as parameters, creates the
-	 *             JenaModels, validates the dataModel against shapeModel and
+	 *             This method takes instance of abstractResource as parameter,
+	 *             extract the class of teh instance, creates the JenaModels,
+	 *             validates the dataModel against shapeModel and
 	 *             return the ValidationResultModel
 	 */
-	ValidationResultModel validate(AbstractResource resource, Class<? extends AbstractResource> clazz)
+	ValidationResultModel validate(AbstractResource resource)
 			throws OslcCoreApplicationException, URISyntaxException, ParseException, IllegalAccessException,
 			IllegalArgumentException, InvocationTargetException, DatatypeConfigurationException;
 
