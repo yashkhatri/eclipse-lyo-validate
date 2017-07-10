@@ -29,6 +29,12 @@ import org.eclipse.lyo.oslc4j.core.model.OslcConstants;
 import org.eclipse.lyo.oslc4j.core.model.ValueType;
 import org.eclipse.lyo.validate.constants.DataType;
 
+/**
+ * 
+ * @author Yash Khatri (yash.s.khatri@gmail.com)
+ *
+ */
+
 
 @OslcNamespace(ShaclConstants.SHACL_CORE_NAMESPACE)
 @OslcName("property")

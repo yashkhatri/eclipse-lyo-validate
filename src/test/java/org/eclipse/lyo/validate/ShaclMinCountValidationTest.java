@@ -13,10 +13,11 @@ import org.json.JSONObject;
 import org.junit.Test;
 
 import es.weso.schema.Result;
-import junit.framework.Assert;
+import org.junit.Assert;
 
 /**
  * The Class ShaclMinCountValidationTest.
+ * @author Yash Khatri (yash.s.khatri@gmail.com)
  */
 public class ShaclMinCountValidationTest {
 

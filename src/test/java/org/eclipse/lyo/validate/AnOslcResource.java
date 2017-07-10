@@ -34,6 +34,12 @@ import org.eclipse.lyo.validate.shacl.ShaclShapeFactory;
 
 import es.weso.schema.Result;
 
+/**
+ * 
+ * @author Yash Khatri (yash.s.khatri@gmail.com)
+ *
+ */
+
 @OslcNamespace(SampleAdaptorConstants.SAMPLEDOMAIN_NAMSPACE)
 @OslcName(SampleAdaptorConstants.ANOSLCRESOURCE)
 @OslcResourceShape(title = "AResource Resource Shape", describes = SampleAdaptorConstants.TYPE_ARESOURCE)

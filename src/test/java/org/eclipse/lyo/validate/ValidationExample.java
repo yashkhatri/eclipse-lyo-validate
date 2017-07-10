@@ -7,6 +7,11 @@ import org.eclipse.lyo.validate.impl.ValidatorImpl;
 
 import es.weso.schema.Result;
 
+/**
+ * 
+ * @author Yash Khatri (yash.s.khatri@gmail.com)
+ *
+ */
 public class ValidationExample {
 
 	/**

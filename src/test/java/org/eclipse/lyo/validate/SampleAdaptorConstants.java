@@ -23,14 +23,14 @@
 
 package org.eclipse.lyo.validate;
 
-// Start of user code imports
-// End of user code
+/**
+ * 
+ * @author Yash Khatri (yash.s.khatri@gmail.com)
+ *
+ */
 
 public interface SampleAdaptorConstants
 {
-    // Start of user code user constants
-	// End of user code
-
     public static String SAMPLEDOMAIN_DOMAIN = "http://www.sampledomain.org/sam#";
     public static String SAMPLEDOMAIN_NAMSPACE = "http://www.sampledomain.org/sam#";
     public static String SAMPLEDOMAIN_NAMSPACE_PREFIX = "sam";

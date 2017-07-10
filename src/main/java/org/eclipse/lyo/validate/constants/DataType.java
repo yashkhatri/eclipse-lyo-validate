@@ -8,6 +8,8 @@ import org.eclipse.lyo.oslc4j.core.model.OslcConstants;
  * The Enum DataType.
  * 
  * This enums contains the data types that are supported by SHACL
+ * 
+ * @author Yash Khatri (yash.s.khatri@gmail.com) 
  */
 public enum DataType {
 	

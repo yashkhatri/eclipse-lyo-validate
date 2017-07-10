@@ -24,6 +24,12 @@ import org.eclipse.lyo.oslc4j.core.model.AbstractResource;
 import org.eclipse.lyo.oslc4j.core.model.OslcConstants;
 import org.eclipse.lyo.oslc4j.core.model.ValueType;
 
+/**
+ * 
+ * @author Yash Khatri (yash.s.khatri@gmail.com)
+ *
+ */
+
 @OslcNamespace(ShaclConstants.SHACL_CORE_NAMESPACE)
 @OslcName("Shape")
 @OslcResourceShape(title = "Shacl Resource Shape", describes = ShaclConstants.TYPE_SHACL_SHAPE)

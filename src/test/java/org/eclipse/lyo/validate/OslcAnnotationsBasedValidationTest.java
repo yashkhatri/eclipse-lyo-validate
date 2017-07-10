@@ -18,7 +18,12 @@ import junit.framework.Assert;
 
 /**
  * The Class OslcAnnotationsBasedValidationTest.
+ * 
+ * 
+ * @author Yash Khatri (yash.s.khatri@gmail.com)
+ *
  */
+ 
 public class OslcAnnotationsBasedValidationTest {
 
 	/** The a resource. */

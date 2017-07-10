@@ -1,0 +1,35 @@
+@prefix sh:    <http://www.w3.org/ns/shacl#> .
+@prefix ex:    <http://example.com/ns#> .
+ex:SuperShape
+	a sh:NodeShape ;
+	sh:property [
+		sh:path ex:property ;
+		sh:minCount 1 ;
+	] .
+
+ex:ExampleAndShape
+	a sh:NodeShape ;
+	sh:targetNode ex:ValidInstance, ex:InvalidInstance ;
+	sh:and (
+		ex:SuperShape
+		[
+			sh:path ex:property1;
+			sh:maxCount 1;
+			sh:minCount 1;
+		]
+		[
+			sh:path ex:property2 ;
+ 			sh:maxCount 1;
+			sh:minCount 1;
+
+		]
+
+	) .
+
+ex:InValidInstance
+	ex:property1 "One" .
+
+# Invalid: more than one property
+ex:ValidInstance
+	ex:property1 "One" ;
+	ex:property2 "Two" .

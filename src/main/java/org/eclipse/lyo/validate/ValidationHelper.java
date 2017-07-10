@@ -134,8 +134,6 @@ public interface ValidationHelper {
 	 *
 	 * @param resource
 	 *            the resource
-	 * @param clazz
-	 *            the clazz
 	 * @return the validation result model
 	 * @throws OslcCoreApplicationException
 	 *             the oslc core application exception

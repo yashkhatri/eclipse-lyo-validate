@@ -48,6 +48,12 @@ import org.eclipse.lyo.validate.shacl.annotations.ShaclTargetClass;
 
 import es.weso.schema.Result;
 
+/**
+ * 
+ * @author Yash Khatri (yash.s.khatri@gmail.com)
+ *
+ */
+
 @OslcNamespace(SampleAdaptorConstants.SAMPLEDOMAIN_NAMSPACE)
 @OslcName(SampleAdaptorConstants.ARESOURCE)
 @OslcResourceShape(title = "AResource Resource Shape", describes = SampleAdaptorConstants.TYPE_ARESOURCE)
